@@ -41,13 +41,14 @@
                             Find a Thing
                         </a>
                     </li>
-                    <li data-theme="c">
-                        <a href="#page1" data-transition="slide">
-                            Checked-Out Things
-                            <!-- TODO: check if the user is logged in; if not, suppress this item. -->
-                            <span class="ui-li-count">{{ checked_out_things }}</span>
-                        </a>
-                    </li>
+                    {% if login_button != 'Login' %}
+		                <li data-theme="c">
+		                    <a href="#page1" data-transition="slide">
+		                        Checked-Out Things
+		                        <span class="ui-li-count">{{ checked_out_things }}</span>
+		                    </a>
+		                </li>
+		            {% endif %}
                     <li data-role="list-divider" role="heading">
                         Account
                     </li>
