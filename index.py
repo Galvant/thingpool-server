@@ -25,12 +25,14 @@ class MainPage(webapp2.RequestHandler):
         if user:
             template_values.update({
                 'login_button': 'Logout {}'.format(user.nickname()),
-                'loginout_url': users.create_logout_url(self.request.uri)
+                'loginout_url': users.create_logout_url(self.request.uri),
+                'checked_out_things': 12 # FIXME: this is for mockup purposes ONLY.
             })
         else:
             template_values.update({
                 'login_button': 'Login',
-                'loginout_url': users.create_login_url(self.request.uri)
+                'loginout_url': users.create_login_url(self.request.uri),
+                'checked_out_things': 0
             })
             
 

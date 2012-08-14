@@ -15,6 +15,7 @@
         </script>
     </head>
     <body>
+    
         <!-- Home -->
         <div data-role="page" id="page1">
             <div data-theme="a" data-role="header">
@@ -22,6 +23,7 @@
                     ThingPool
                 </h3>
                 <a data-role="button" data-transition="fade" data-theme="b" href="{{ loginout_url }}" class="ui-btn-right">
+                    <!-- TODO: put the logout button everywhere? Maybe? -->
                     {{ login_button }}
                 </a>
             </div>
@@ -34,16 +36,16 @@
                         Things
                     </li>
                     <li data-theme="c">
-                        <a href="#page1" data-transition="slide">
+                        <a href="#search" data-transition="slide">
+                            <!-- TODO: this link should transition to a login page if the config option is set in config.py. -->
                             Find a Thing
                         </a>
                     </li>
                     <li data-theme="c">
                         <a href="#page1" data-transition="slide">
                             Checked-Out Things
-                            <span class="ui-li-count">
-                                0
-                            </span>
+                            <!-- TODO: check if the user is logged in; if not, suppress this item. -->
+                            <span class="ui-li-count">{{ checked_out_things }}</span>
                         </a>
                     </li>
                     <li data-role="list-divider" role="heading">
@@ -62,6 +64,34 @@
                 </h3>
             </div>
         </div>
+        <!-- / Home -->
+        
+        <!-- Things -->
+        
+        <div data-role="page" id="search">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    <!-- TODO: add a "Back" button to make iOS users feel at home. -->
+                    Find a Thing
+                </h3>
+            </div>
+            
+            
+	        <div data-role="content">
+		        <div class="content-primary">	
+			        <ul data-role="listview">
+			        <!-- TODO: Connect to something that hits against the server's autocomplete API and searches Things. This looks promising: http://stackoverflow.com/a/7936266 -->
+		                <li><input type="search" name="search" id="search-things" value="" placeholder="Search Things..." /></li>
+        				<li data-role="list-divider">Categories</li>
+    				    <!-- TODO: Repopulate the list when a category is clicked. -->
+				        <li><a href="index.html">Books</a></li>
+				        <li><a href="index.html">Electronics</a></li>
+			        </ul>
+			    </div><!--/content-primary -->	
+		    </div>
+        </div>
+        <!-- / Things -->
+        
         <script>
             //App custom javascript
         </script>
