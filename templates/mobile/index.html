@@ -11,6 +11,11 @@
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
         </script>
+        <script type="text/javascript">
+			$(document).bind("mobileinit", function(){
+			    $.mobile.page.prototype.options.addBackBtn= true;
+			});
+		</script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.js">
         </script>
     </head>
@@ -72,7 +77,6 @@
         <div data-role="page" id="search">
             <div data-theme="a" data-role="header">
                 <h3>
-                    <!-- TODO: add a "Back" button to make iOS users feel at home. -->
                     Find a Thing
                 </h3>
             </div>
