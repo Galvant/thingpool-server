@@ -1,9 +1,9 @@
-application: helloworld
+application: thingpool
 version: 1
 runtime: python27
 api_version: 1
-threadsafe: true
+threadsafe: false
 
 handlers:
 - url: /.*
-  script: helloworld.app
+  script: index.app
