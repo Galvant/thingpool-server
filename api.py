@@ -22,9 +22,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##
 
+import dataModels
+
+from google.appengine.api import users
+
 class newUser(webapp2.RequestHandler):
     def post(self):
-        # TODO: Handle new user creation
+        # Note, anyone can request an account       
+        p = Person(user_account = users.get_current_user(),
+                   permissions = 3) # Set to 'requested' status
+        p.put()
         
 class modifyUser(webapp2.RequestHandler):
     def post(self):
