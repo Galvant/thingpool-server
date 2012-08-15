@@ -30,7 +30,7 @@ class Person(db.Model):
     permissions = db.IntegerProperty(required=True) # Five levels of permissions: Admin, manager, user, requested, banned
 	
 class Item(polymodel.PolyModel):
-    id_number = db.IntegerProperty(required=True) # Unique ID to sort item duplicates
+    item_id = db.IntegerProperty(required=True) # Unique ID to sort item duplicates
     name = db.StringProperty(required=True) # Primary name of item (book title, product number, etc)
     name2 = db.StringProperty() # Secondary name to search on (eg author name, type of equipment)
     content = db.StringProperty(multiline=True) # Storage of supplimentary details (eg brief description/specs)
