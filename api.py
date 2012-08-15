@@ -28,9 +28,12 @@ from google.appengine.api import users
 
 class newUser(webapp2.RequestHandler):
     def post(self):
-        # Note, anyone can request an account       
-        p = Person(user_account = users.get_current_user(),
-                   permissions = 3) # Set to 'requested' status
+        # Note, anyone can request an account 
+        # TODO: Add check if currently a user before trying to add    
+        p = Person(
+                    user_account = users.get_current_user(),
+                    permissions = 3 # Set to 'requested' status
+                    ) 
         p.put()
         
 class modifyUser(webapp2.RequestHandler):
@@ -45,7 +48,17 @@ class queryUserList(webapp2.RequestHandler):
 
 class newItem(webapp2.RequestHandler):
     def post(self):
-        # TODO: Handle adding a new item to datastore
+        # TODO: Generate item ID right here, should not be user defined
+        
+        user = users.get_current_user()
+        q = db.GqlQuery("SELECT * FROM Person WHERE user_account = :1" , user)
+        
+        result = q.get() # Obtain first single matching entity (there should only be 1!)
+        if result.permissions == 0 or result.permissions == 1: # if admin or manager
+            item = Item(
+                        id_number = self.request.get('id_number'),
+                        name = self.request.get('name')
+                        )
 
 class modifyItem(webapp2.RequestHandler):
     def post(self):
