@@ -21,3 +21,55 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##
+
+class newUser(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle new user creation
+        
+class modifyUser(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle changing user settings
+        # If permission = admin or manager, allow permission changes for those below
+
+class queryUserList(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Return list of users filtered by desired permission level
+        # Restricted to admin & manager
+
+class newItem(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle adding a new item to datastore
+
+class modifyItem(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle changing item properties
+        # Naturally, this should be restricted to admins or managers
+        # Deleting an item should probably be included in here
+
+class queryItemList(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle adding a new item to datastore
+
+class checkoutItem(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle checking out of item.
+        # This includes direct item transfer without explicit 'checkin'
+        # Also includes clearing outstanding requests if required
+        
+class checkinItem(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle item checkin process
+        
+class requestItem(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Handle item request process
+        
+class queryCheckoutList(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Return list of current / historical checkouts a user has performed
+        # Admin & manager should be able to do this against other user accounts
+        
+class queryRequestList(webapp2.RequestHandler):
+    def post(self):
+        # TODO: Return list of current / historical item requests a user has performed
+        # Admin & manager should be able to do this against other user accounts
