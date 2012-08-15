@@ -59,6 +59,7 @@ class newItem(webapp2.RequestHandler):
                         id_number = self.request.get('id_number'),
                         name = self.request.get('name')
                         )
+            item.put()
 
 class modifyItem(webapp2.RequestHandler):
     def post(self):
