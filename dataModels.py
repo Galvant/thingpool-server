@@ -25,9 +25,19 @@
 from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 
+import security as s
+
 class Person(db.Model):
     user_account = db.UserProperty(required=True) # Used to store User account
     permissions = db.IntegerProperty(required=True) # Five levels of permissions: Admin, manager, user, requested, banned
+    
+    @property
+    def can_query_user(self):
+        # TODO: check that this is how you query a property of Person, or if
+        #       we need to run a query here.
+        # TODO: check if is a GAE admin, in which case all other checks are bypassed.
+        #       Consider adding that check as a decorator.
+        return self.permissions >= s.USER_STATUS_USER
 	
 class Item(polymodel.PolyModel):
     item_id = db.IntegerProperty(required=True) # Unique ID to sort item duplicates

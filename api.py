@@ -26,28 +26,63 @@ import dataModels
 
 from google.appengine.api import users
 
-class newUser(webapp2.RequestHandler):
+from security import *
+
+class UserHandler(webapp2.RequestHandler):
+
+    @require_permission('query_user')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /users/{id}
+        Queries the user given by the ID {id}.
+        """
+        pass
+        
+    # Permissions checking is a little more complicated here, so we
+    # don't use @require_permission.
+    @require_gae_login('deny')
+    def modify(self):
+        """
+        MODIFY /users/{id}
+        Modifies the user given by ID {id}.
+        """
+        pass
+        
+        
+class UsersHandler(webapp2.RequestHander):
+    @requre_permission('query_users')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /users
+        Returns a list of all users matching a given filter, paginated and
+        starting at a given index.
+        """
+        user = users.get_current_user()
+        q = Person.all().filter('user_account = ', user)
+        
+        # TODO: build a filter from query strings, paginate, serialize to JSON.
+        if q.get().permissions >= USER_STATUS_MANAGER: # if admin or manager
+            q = Person.all().filter('permissions = ', self.request.get('permissions'))
+            
+    
+    @require_permission('request_account', reason="Banned users cannot request accounts.") # Denied only for banned users.
+    @require_gae_login('deny')
     def post(self):
+        """
+        POST /users
+        Creates a new user as specified by the POST content.
+        """
         # Note, anyone can request an account 
         # TODO: Add check if currently a user before trying to add, and deny those who are banned 
         p = Person(
-                    user_account = users.get_current_user(),
-                    permissions = 3 # Set to 'requested' status
-                    ) 
+                user_account = users.get_current_user(),
+                permissions = USER_STATUS_REQUESTED # Set to 'requested' status
+                ) 
         p.put()
-        
-class modifyUser(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Handle changing user settings
-        # If permission = admin or manager, allow permission changes for those below
 
-class queryUserList(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Return result to user (json?)
-        user = users.get_current_user()
-        q = Person.all().filter('user_account = ', user)
-        if q.get().permissions in [0,1]: # if admin or manager
-            q = Person.all().filter('permissions = ', self.request.get('permissions'))
+# TODO: RESTify the other resources below.
 
 class newItem(webapp2.RequestHandler):
     def post(self):
