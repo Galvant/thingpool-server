@@ -22,10 +22,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##
 
+## IMPORTS #####################################################################
+
+## GAE API ##
 from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 
+## PYTHON STANDARD LIBRARY ##
+import json
+
+## THINGPOOL MODULES ##
 import security as s
+
+## DATA MODELS #################################################################
 
 class Person(db.Model):
     user_account = db.UserProperty(required=True) # Used to store User account
@@ -38,9 +47,16 @@ class Person(db.Model):
         # TODO: check if is a GAE admin, in which case all other checks are bypassed.
         #       Consider adding that check as a decorator.
         return self.permissions >= s.USER_STATUS_USER
+        
+    def __json__(self):
+        return json.dumps({
+            'id': self.key().id(),
+            'nickname': self.user_account.nickname(),
+            'g_account': self.user_account.email(),
+            'role': s.USER_STATUS_DESCRIPTIONS[self.permissions]
+        })
 	
 class Item(polymodel.PolyModel):
-    item_id = db.IntegerProperty(required=True) # Unique ID to sort item duplicates
     name = db.StringProperty(required=True) # Primary name of item (book title, product number, etc)
     name2 = db.StringProperty() # Secondary name to search on (eg author name, type of equipment)
     content = db.StringProperty(multiline=True) # Storage of supplimentary details (eg brief description/specs)

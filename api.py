@@ -28,6 +28,10 @@ from google.appengine.api import users
 
 from security import *
 
+def json(obj):
+    assert hasattr(obj, '__json__'), "Cannot serialize {} to JSON.".format(obj)
+    return obj.__json__()
+
 class UserHandler(webapp2.RequestHandler):
 
     @require_permission('query_user')
@@ -37,7 +41,9 @@ class UserHandler(webapp2.RequestHandler):
         GET /users/{id}
         Queries the user given by the ID {id}.
         """
-        pass
+        # TODO: grab the user_id, write appropriate headers.
+        q = Users.all().filter('user_id =', user_id)
+        self.response.write(json(q.get()))
         
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.

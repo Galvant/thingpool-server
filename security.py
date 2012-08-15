@@ -38,6 +38,15 @@ USER_STATUS_USER      =  2
 USER_STATUS_MANAGER   =  3
 USER_STATUS_ADMIN     =  4
 
+USER_STATUS_DESCRIPTIONS = {
+    USER_STATUS_BANNED:    'banned',
+    USER_STATUS_UNKNOWN:   'none',
+    USER_STATUS_REQUESTED: 'requested',
+    USER_STATUS_USER:      'user',
+    USER_STATUS_MANAGER:   'manager',
+    USER_STATUS_ADMIN:     'admin'
+}
+
 ## DECORATORS ##
 
 def require_permission(perm, reason=None):
