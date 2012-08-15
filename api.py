@@ -29,7 +29,7 @@ from google.appengine.api import users
 class newUser(webapp2.RequestHandler):
     def post(self):
         # Note, anyone can request an account 
-        # TODO: Add check if currently a user before trying to add    
+        # TODO: Add check if currently a user before trying to add, and deny those who are banned 
         p = Person(
                     user_account = users.get_current_user(),
                     permissions = 3 # Set to 'requested' status
@@ -45,19 +45,16 @@ class queryUserList(webapp2.RequestHandler):
     def post(self):
         # TODO: Return result to user (json?)
         user = users.get_current_user()
-        q = db.GqlQuery("SELECT * FROM Person WHERE user_account = :1" , user)
-        result = q.get() # Obtain first single matching entity (there should only be 1!)
-        if result.permissions == 0 or result.permissions == 1: # if admin or manager
-            q = db.GqlQuery("SELECT * FROM Person WHERE permissions = :1", 
-                            self.request.get('permissions')) 
+        q = Person.all().filter('user_account = ', user)
+        if q.get().permissions in [0,1]: # if admin or manager
+            q = Person.all().filter('permissions = ', self.request.get('permissions'))
 
 class newItem(webapp2.RequestHandler):
     def post(self):
         # TODO: Generate item ID right here, should not be user defined
         user = users.get_current_user()
-        q = db.GqlQuery("SELECT * FROM Person WHERE user_account = :1" , user)
-        result = q.get() # Obtain first single matching entity (there should only be 1!)
-        if result.permissions == 0 or result.permissions == 1: # if admin or manager
+        q = Person.all().filter('user_account = ', user)
+        if q.get().permissions in [0,1]: # if admin or manager
             item = Item(
                         id_number = self.request.get('id_number'),
                         name = self.request.get('name')
@@ -76,9 +73,22 @@ class queryItemList(webapp2.RequestHandler):
 
 class checkoutItem(webapp2.RequestHandler):
     def post(self):
-        # TODO: Handle checking out of item.
-        # This includes direct item transfer without explicit 'checkin'
-        # Also includes clearing outstanding requests if required
+        # TODO: 
+        #       - This includes direct item transfer without explicit 'checkin'
+        #           - Clear previous checkout transaction (call checkin)
+        #           - Deny if same user already has it checked out
+        #       - Also includes clearing outstanding requests if required
+        user = users.get_current_user()
+        q = Person.all().filter('user_account = ', user)
+        user = q.get()
+        if user.permissions in [0,1,2]: # if admin, manager, or user
+            q = Item.all().filter('item_id = ', self.request.get('item_id'))
+            
+            c = CheckoutTransaction(
+                                    item=q.get(),
+                                    holder = user
+                                    )
+            c.put()
         
 class checkinItem(webapp2.RequestHandler):
     def post(self):
