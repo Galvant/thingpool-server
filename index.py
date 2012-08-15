@@ -24,15 +24,17 @@ class MainPage(webapp2.RequestHandler):
         # the dictionary differently if we're logged in or not.
         if user:
             template_values.update({
-                'login_button': 'Logout {}'.format(user.nickname()),
+                'login_button': 'Logout',
                 'loginout_url': users.create_logout_url(self.request.uri),
-                'checked_out_things': 12 # FIXME: this is for mockup purposes ONLY.
+                'checked_out_things': 12, # FIXME: this is for mockup purposes ONLY.
+                'username': user.nickname()
             })
         else:
             template_values.update({
                 'login_button': 'Login',
                 'loginout_url': users.create_login_url(self.request.uri),
-                'checked_out_things': 0
+                'checked_out_things': 0,
+                'username' : 'Not logged in'
             })
             
 
