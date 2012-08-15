@@ -42,7 +42,7 @@ class UserHandler(webapp2.RequestHandler):
         Queries the user given by the ID {id}.
         """
         # TODO: grab the user_id, write appropriate headers.
-        q = Users.all().filter('user_id =', user_id)
+        q = Users.get_by_id(user_id)
         self.response.write(json(q.get()))
         
     # Permissions checking is a little more complicated here, so we
