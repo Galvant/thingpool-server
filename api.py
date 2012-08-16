@@ -36,13 +36,13 @@ class UserHandler(webapp2.RequestHandler):
 
     @require_permission('query_user')
     @require_gae_login('deny')
-    def get(self):
+    def get(self, user_id):
         """
         GET /users/{id}
         Queries the user given by the ID {id}.
         """
         # TODO: grab the user_id, write appropriate headers.
-        q = Users.get_by_id(user_id)
+        q = Person.get_by_id(user_id)
         self.response.write(json(q.get()))
         
     # Permissions checking is a little more complicated here, so we
@@ -56,7 +56,7 @@ class UserHandler(webapp2.RequestHandler):
         pass
         
         
-class UsersHandler(webapp2.RequestHander):
+class UserListHandler(webapp2.RequestHander):
     @requre_permission('query_users')
     @require_gae_login('deny')
     def get(self):
@@ -88,29 +88,55 @@ class UsersHandler(webapp2.RequestHander):
                 ) 
         p.put()
 
-# TODO: RESTify the other resources below.
 
-class newItem(webapp2.RequestHandler):
+class ItemListHandler(webapp2.RequestHandler):
+    @require_permission('new_item')
+    @require_gae_login('deny')
     def post(self):
+        """
+        POST /items
+        Creates a new item as specified by the POST content.
+        """
         # TODO: Generate item ID right here, should not be user defined
-        user = users.get_current_user()
-        q = Person.all().filter('user_account = ', user)
-        if q.get().permissions in [0,1]: # if admin or manager
-            item = Item(
-                        id_number = self.request.get('id_number'),
-                        name = self.request.get('name')
-                        )
-            item.put()
+        item = Item(
+                    id_number = self.request.get('id_number'),
+                    name = self.request.get('name')
+                    )
+        item.put()
+        
+    @require_permission('query_items')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /items
+        Returns a list of all items matching a given filter
+        """
+        #TODO: Filter results and whatnot, serialize to JSON
+        q = Item.all()
 
-class modifyItem(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Handle changing item properties
-        # Naturally, this should be restricted to admins or managers
-        # Deleting an item should probably be included in here
 
-class queryItemList(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Handle adding a new item to datastore
+class ItemHandler(webapp2.RequestHandler):
+    @require_permission('query_item')
+    @require_gae_login('deny')
+    def get(self, item_id):
+        """
+        GET /items/{id}
+        Queries the item given by the ID {id}.
+        """
+        # TODO: grab the item_id, write appropriate headers.
+        q = Item.get_by_id(user_id)
+        self.response.write(json(q.get()))
+    
+    @require_permission('modify_item')
+    @require_gae_login('deny')
+    def modify(self, item_id):
+        """
+        MODIFY /items/{id}
+        Modifies the item given by ID {id}.
+        """
+        pass
+
+# TODO: RESTify the other resources below.
 
 class checkoutItem(webapp2.RequestHandler):
     def post(self):
