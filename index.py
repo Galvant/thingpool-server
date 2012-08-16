@@ -6,6 +6,8 @@ import os
 
 from google.appengine.api import users
 
+import api
+
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
@@ -41,5 +43,17 @@ class MainPage(webapp2.RequestHandler):
         template = jinja_environment.get_template('templates/mobile/index.html')
         self.response.out.write(template.render(template_values))
 
-app = webapp2.WSGIApplication([('/', MainPage)],
-                              debug=True)
+routes = [
+    # Mobile site routes
+    ('/', MainPage),
+    
+    # API routes
+    ('/api/users', api.UsersHandler),
+    ('/api/users/<user_id>', api.UserHandler), # TODO: Add user_id argument to UserHandler.
+    # ('/api/items', ),
+    # ('/api/items/<item_id>', ),
+]
+
+app = webapp2.WSGIApplication(
+    routes=routes,
+    debug=True)
