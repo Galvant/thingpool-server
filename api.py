@@ -22,13 +22,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 ##
 
-import dataModels
+## IMPORTS #####################################################################
 
-import json
-
+## GAE API ##
 from google.appengine.api import users
 
+## PYTHON STANDARD LIBRARY ##
+import json
+
+## THINGPOOL MODULES ##
+import dataModels
 from security import *
+
+## API REQUEST HANDLERS ########################################################
 
 def as_json(obj):
     assert hasattr(obj, '__api__'), "Cannot serialize {} to JSON.".format(obj)
@@ -45,7 +51,7 @@ class UserHandler(webapp2.RequestHandler):
         """
         # TODO: grab the user_id, write appropriate headers.
         q = Person.get_by_id(user_id)
-        self.response.write(json(q.get()))
+        self.response.write(as_json(q.get()))
         
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
@@ -127,7 +133,7 @@ class ItemHandler(webapp2.RequestHandler):
         """
         # TODO: grab the item_id, write appropriate headers.
         q = Item.get_by_id(user_id)
-        self.response.write(json(q.get()))
+        self.response.write(as_json(q.get()))
     
     @require_permission('modify_item')
     @require_gae_login('deny')
@@ -137,27 +143,60 @@ class ItemHandler(webapp2.RequestHandler):
         Modifies the item given by ID {id}.
         """
         pass
+ 
+        
+class CategoryHandler(webapp2.RequestHandler):
+    @require_permission('query_category')
+    @require_gae_login('deny')
+    def get(self, category_id):
+        """
+        GET /categories/{id}
+        Queries the category by the ID {id}
+        """
+        q = Category.get_by_id(category_id)
+        self.response.write(as_json(q.get()))
+        
+    @require_permission('modify_category')
+    @require_gae_login('deny')
+    def modify(self, category_id):
+        """
+        MODIFY /categories/{id}
+        Modifies the category by the ID {id}
+        """
+        pass
 
-# TODO: RESTify the other resources below.
 
-class checkoutItem(webapp2.RequestHandler):
+class CheckoutListHandler(webapp2.RequestHandler):
+    @require_permission('new_checkout')
+    @require_gae_login('deny')
     def post(self):
+        """
+        POST /checkout
+        Creates a new checkout transaction
+        """
         # TODO: 
-        #       - This includes direct item transfer without explicit 'checkin'
-        #           - Clear previous checkout transaction (call checkin)
+        #       - Direct item transfer without explicit 'checkin'
+        #           - Clear previous checkout transaction (ie call checkin routines)
         #           - Deny if same user already has it checked out
         #       - Also includes clearing outstanding requests if required
-        user = users.get_current_user()
-        q = Person.all().filter('user_account = ', user)
-        user = q.get()
-        if user.permissions in [0,1,2]: # if admin, manager, or user
-            q = Item.all().filter('item_id = ', self.request.get('item_id'))
-            
-            c = CheckoutTransaction(
-                                    item=q.get(),
-                                    holder = user
-                                    )
-            c.put()
+        q = Item.get_by_id(self.request.get('item_id'))
+        c = CheckoutTransaction(
+                                item=q.get(),
+                                holder = users.get_current_user()
+                                )
+        c.put()
+        
+    @require_permission('query_checkout_transactions')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /checkout
+        Query checkout transaction history for a user or item
+        """
+        # TODO: Everything
+        pass
+
+# TODO: RESTify the other resources below.
         
 class checkinItem(webapp2.RequestHandler):
     def post(self):
