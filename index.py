@@ -45,13 +45,26 @@ class MainPage(webapp2.RequestHandler):
 
 routes = [
     # Mobile site routes
-    ('/', MainPage),
+    webapp2.Route('/',
+        handler=MainPage),
     
     # API routes
-    ('/api/users', api.UsersHandler),
-    ('/api/users/<user_id>', api.UserHandler), # TODO: Add user_id argument to UserHandler.
-    # ('/api/items', ),
-    # ('/api/items/<item_id>', ),
+    webapp2.Route('/api/users',
+        handler=api.UserListHandler,
+        name='api_users_list'
+        ),
+    webapp2.Route('/api/users/<user_id>',
+        handler=api.UserHandler,
+        name='api_user'
+        ),
+    webapp2.Route('/api/items',
+        handler=api.ItemListHandler,
+        name='api_item_list'
+        ),
+    webapp2.Route('/api/items/<item_id>',
+        handler=api.ItemHandler,
+        name='api_item'
+        ),
 ]
 
 app = webapp2.WSGIApplication(

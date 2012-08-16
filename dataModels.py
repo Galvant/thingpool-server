@@ -38,6 +38,7 @@ import json
 
 ## THINGPOOL MODULES ##
 import security as s
+from index import app
 
 ## DATA MODELS #################################################################
 
@@ -47,7 +48,7 @@ class Person(db.Model):
     
     @property
     def uri(self):
-        raise NotImplementedError()
+        app.url_for('user', user_id=self.key().id())
         
     @property
     def can_query_user(self):
@@ -64,10 +65,6 @@ class Person(db.Model):
             'g_account': self.user_account.email(),
             'role': s.USER_STATUS_DESCRIPTIONS[self.permissions]
         }
-        
-    def __json__(self):
-        # TODO: move this into the as_json function in api.py.
-        return json.dumps(self.__api__())
 	
 class Category(db.Model):
     name = db.StringProperty(required=True)
@@ -78,7 +75,8 @@ class Category(db.Model):
         
     @property
     def uri(self):
-        raise NotImplementedError()
+        # This is not yet implemented on the API side.
+        app.url_for('category', category_id=self.key().id())
         
     def __api__(self):
         return {
@@ -97,7 +95,7 @@ class Item(polymodel.PolyModel):
     
     @property
     def uri(self):
-        raise NotImplementedError()
+        app.url_for('item', item_id=self.key().id())
         
     def __api__(self):
         data = {

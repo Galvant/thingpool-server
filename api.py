@@ -24,13 +24,15 @@
 
 import dataModels
 
+import json
+
 from google.appengine.api import users
 
 from security import *
 
-def json(obj):
-    assert hasattr(obj, '__json__'), "Cannot serialize {} to JSON.".format(obj)
-    return obj.__json__()
+def as_json(obj):
+    assert hasattr(obj, '__api__'), "Cannot serialize {} to JSON.".format(obj)
+    return json.dumps(obj.__api__())
 
 class UserHandler(webapp2.RequestHandler):
 
@@ -48,7 +50,7 @@ class UserHandler(webapp2.RequestHandler):
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
     @require_gae_login('deny')
-    def modify(self):
+    def modify(self, user_id):
         """
         MODIFY /users/{id}
         Modifies the user given by ID {id}.
