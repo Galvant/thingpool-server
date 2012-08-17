@@ -50,7 +50,7 @@ USER_STATUS_DESCRIPTIONS = {
 ## DECORATORS ##
 
 def require_permission(perm, reason=None):
-    assert hasattr(Person(), 'can_' + perm)
+    # assert hasattr(Person(), 'can_' + perm)
 
     # FIXME: This is currently a no-op intended to prototype the functionality.
     #        Obviously, that is very, very, very bad for a security feature.

@@ -28,12 +28,14 @@
 from google.appengine.api import users
 from google.appengine.ext import db
 
+import webapp2
+
 ## PYTHON STANDARD LIBRARY ##
 import json
 import datetime
 
 ## THINGPOOL MODULES ##
-import dataModels
+from dataModels import *
 from security import *
 
 ## API REQUEST HANDLERS ########################################################
@@ -72,21 +74,24 @@ class UserHandler(webapp2.RequestHandler):
         new_permission = self.request.get('permissions')
         
         # Filter invalid permission settings
-        if (new_permission < USER_STATUS_BANNED) or (new_permission > USER_STATUS_ADMIN)
-            self.error(403)
+        # TODO: move this filter to security.py
+        if (new_permission < USER_STATUS_BANNED) or (new_permission > USER_STATUS_ADMIN):
+            self.error(400)
             return
+            
         # Manager can change those below
+        # TODO: Add can_change_permissions to UserModel.
         if (user.permissions >= USER_STATUS_MANAGER) and (new_permission < USER_STATUS_MANAGER):
             target_user.permissions = new_permission
-            db.put(target_user)
+            db.put(target_user)            
         # Admins can add more admins. GAE admin should not have to handle system at all.
         elif (user.permissions >= USER_STATUS_ADMIN) and (new_permission <= USER_STATUS_ADMIN):
             target_user.permissions = new_permission
             db.put(target_user)
         
         
-class UserListHandler(webapp2.RequestHander):
-    @requre_permission('query_users')
+class UserListHandler(webapp2.RequestHandler):
+    @require_permission('query_users')
     @require_gae_login('deny')
     def get(self):
         """

@@ -38,7 +38,7 @@ import json
 
 ## THINGPOOL MODULES ##
 import security as s
-from index import app
+from index import *
 
 ## DATA MODELS #################################################################
 
