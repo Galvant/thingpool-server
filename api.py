@@ -198,6 +198,7 @@ class CategoryHandler(webapp2.RequestHandler):
         MODIFY /categories/{id}
         Modifies the category by the ID {id}
         """
+        # TODO: Everything
         pass
 
 
@@ -287,6 +288,7 @@ class RequestHandler(webapp2.RequestHandler):
         GET /request/{id}
         Query specific request transaction details
         """
+        # TODO: Everything
         pass
         
     @require_permission('modify_request')
@@ -296,5 +298,6 @@ class RequestHandler(webapp2.RequestHandler):
         MODIFY /request/{id}
         Modify request transaction to include a resolution date
         """
+        # TODO: Everything
         pass
         
