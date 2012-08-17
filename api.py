@@ -98,13 +98,15 @@ class UserListHandler(webapp2.RequestHandler):
         GET /users
         Returns a list of all users matching a given filter, paginated and
         starting at a given index.
-        """
-        user = users.get_current_user()
-        q = Person.all().filter('user_account = ', user)
-        
-        # TODO: build a filter from query strings, paginate, serialize to JSON.
-        if q.get().permissions >= USER_STATUS_MANAGER: # if admin or manager
-            q = Person.all().filter('permissions = ', self.request.get('permissions'))
+        """        
+        # TODO: filter on additional query strings
+        users = Person.all()
+        if self.request.get('permissions') is not "":
+            if isinstance(self.request.get('permissions'),int):
+                users = Person.all().filter('permissions = ', int(self.request.get('permissions')))
+            else:
+                self.error(400)
+        self.response.write(as_json(users))
             
     
     @require_permission('request_account', reason="Banned users cannot request accounts.") # Denied only for banned users.
