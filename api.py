@@ -26,6 +26,7 @@
 
 ## GAE API ##
 from google.appengine.api import users
+from google.appengine.ext import db
 
 ## PYTHON STANDARD LIBRARY ##
 import json
@@ -49,10 +50,9 @@ class UserHandler(webapp2.RequestHandler):
         GET /users/{id}
         Queries the user given by the ID {id}.
         """
-        # TODO: grab the user_id, write appropriate headers.
         q = Person.get_by_id(user_id)
         self.response.write(as_json(q.get()))
-        
+
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
     @require_gae_login('deny')
@@ -61,7 +61,23 @@ class UserHandler(webapp2.RequestHandler):
         MODIFY /users/{id}
         Modifies the user given by ID {id}.
         """
-        pass
+        user = users.get_current_user()
+        q = Person.get_by_id(user_id)
+        target_user = q.get()
+        new_permission = self.request.get('permissions')
+        
+        # Filter invalid permission settings
+        if (new_permission < USER_STATUS_BANNED) or (new_permission > USER_STATUS_ADMIN)
+            self.error(403)
+            return
+        # Manager can change those below
+        if (user.permissions >= USER_STATUS_MANAGER) and (new_permission < USER_STATUS_MANAGER):
+            target_user.permissions = new_permission
+            db.put(target_user)
+        # Admins can add more admins. GAE admin should not have to handle system at all.
+        elif (user.permissions >= USER_STATUS_ADMIN) and (new_permission <= USER_STATUS_ADMIN):
+            target_user.permissions = new_permission
+            db.put(target_user)
         
         
 class UserListHandler(webapp2.RequestHander):
