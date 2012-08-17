@@ -145,8 +145,7 @@ class ItemHandler(webapp2.RequestHandler):
         GET /items/{id}
         Queries the item given by the ID {id}.
         """
-        # TODO: grab the item_id, write appropriate headers.
-        q = Item.get_by_id(user_id)
+        q = Item.get_by_id(item_id)
         self.response.write(as_json(q.get()))
     
     @require_permission('modify_item')
@@ -156,7 +155,24 @@ class ItemHandler(webapp2.RequestHandler):
         MODIFY /items/{id}
         Modifies the item given by ID {id}.
         """
-        pass
+        q = Item.get_by_id(item_id)
+        item = q.get()
+        new_category = Category.get_by_id( self.query.get('category_id') )
+        new_category = new_category.get()
+        
+        item.name = self.request.get('name')
+        item.category = new_category
+        
+        if self.request.get('name2') is not "":
+            item.name2 = self.request.get('name2')
+            
+        if self.request.get('content') is not "":
+            item.content = self.request.get('content')
+        
+        if self.request.get('store_location') is not "":
+            item.store_location = self.request.get('store_location')
+        
+        db.put(item)
  
         
 class CategoryHandler(webapp2.RequestHandler):
