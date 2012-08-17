@@ -105,7 +105,6 @@ class UserListHandler(webapp2.RequestHander):
         Creates a new user as specified by the POST content.
         """
         # Note, anyone can request an account 
-        # TODO: Add check if currently a user before trying to add, and deny those who are banned 
         user = users.get_current_user()
         q = Person.all().filter("user_account = ", user)
         q = q.get()
