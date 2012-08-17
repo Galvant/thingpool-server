@@ -121,9 +121,7 @@ class ItemListHandler(webapp2.RequestHandler):
         POST /items
         Creates a new item as specified by the POST content.
         """
-        # TODO: Generate item ID right here, should not be user defined
         item = Item(
-                    id_number = self.request.get('id_number'),
                     name = self.request.get('name')
                     )
         item.put()
