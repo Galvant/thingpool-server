@@ -138,8 +138,8 @@ class BookItem(Item):
 class CheckoutTransaction(db.Model):
     item = db.ReferenceProperty(Item, required=True)
     holder = db.ReferenceProperty(Person, required=True) # Who currently has this item checked out
-    checkout_date = db.DateProperty(auto_now_add=True) # Record checkout date
-    checkin_date = db.DateProperty(auto_now_add=False) 
+    checkout_date = db.DateTimeProperty(auto_now_add=True) # Record checkout date
+    checkin_date = db.DateTimeProperty(auto_now_add=False) 
     
     def __api__(self):
         data = {
@@ -154,8 +154,8 @@ class CheckoutTransaction(db.Model):
 class RequestTransaction(db.Model):
     item = db.ReferenceProperty(Item, required=True)
     requestor = db.ReferenceProperty(Person, required=True) # If requested, by who
-    request_date = db.DateProperty(auto_now_add=True) # Record request date
-    resolved_date = db.DateProperty(auto_now_add=False)
+    request_date = db.DateTimeProperty(auto_now_add=True) # Record request date
+    resolved_date = db.DateTimeProperty(auto_now_add=False)
     
     
     def __api__(self):
