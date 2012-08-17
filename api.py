@@ -106,11 +106,16 @@ class UserListHandler(webapp2.RequestHander):
         """
         # Note, anyone can request an account 
         # TODO: Add check if currently a user before trying to add, and deny those who are banned 
-        p = Person(
-                user_account = users.get_current_user(),
-                permissions = USER_STATUS_REQUESTED # Set to 'requested' status
-                ) 
-        p.put()
+        user = users.get_current_user()
+        q = Person.all().filter("user_account = ", user)
+        q = q.get()
+        if not q: # If does not currently have account, add to list
+            p = Person(
+                    user_account = users.get_current_user(),
+                    permissions = USER_STATUS_REQUESTED # Set to 'requested' status
+                    ) 
+            p.put()
+        # else silently fail
 
 
 class ItemListHandler(webapp2.RequestHandler):
