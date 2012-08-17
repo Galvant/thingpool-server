@@ -230,22 +230,63 @@ class CheckoutListHandler(webapp2.RequestHandler):
         # TODO: Everything
         pass
 
-# TODO: RESTify the other resources below.
-        
-class checkinItem(webapp2.RequestHandler):
+class CheckoutHandler(webapp2.RequestHandler):
+    @require_permission('query_checkout')
+    @require_gae_login('deny')
+    def get(self, checkout_id):
+        """
+        GET /checkout/{id}
+        Query specific checkout transaction details
+        """
+        pass
+    
+    @require_permission('modify_checkout')
+    @require_gae_login('deny')
+    def modify(self, checkout_id):
+        """
+        MODIFY /checkout/{id}
+        Modify checkout transaction to include a checkin date
+        """
+        pass
+
+
+class RequestListHandler(webapp2.RequestHandler):
+    @require_permission('new_request')
+    @require_gae_login('deny')
     def post(self):
-        # TODO: Handle item checkin process
+        """
+        POST /request
+        Add a new request transaction
+        """
+        pass
+    
+    @require_permission('query_request_transactions')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /request
+        Query request transaction history for a user or item
+        """
+        # TODO: Everything
+        pass
+    
+    
+class RequestHandler(webapp2.RequestHandler):
+    @require_permission('query_request')
+    @require_gae_login('deny')
+    def get(self, request_id):
+        """
+        GET /request/{id}
+        Query specific request transaction details
+        """
+        pass
         
-class requestItem(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Handle item request process
+    @require_permission('modify_request')
+    @require_gae_login('deny')
+    def modify(self, checkout_id):
+        """
+        MODIFY /request/{id}
+        Modify request transaction to include a resolution date
+        """
+        pass
         
-class queryCheckoutList(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Return list of current / historical checkouts a user has performed
-        # Admin & manager should be able to do this against other user accounts
-        
-class queryRequestList(webapp2.RequestHandler):
-    def post(self):
-        # TODO: Return list of current / historical item requests a user has performed
-        # Admin & manager should be able to do this against other user accounts
