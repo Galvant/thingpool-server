@@ -102,9 +102,10 @@ class UserListHandler(webapp2.RequestHandler):
         # TODO: filter on additional query strings
         users = Person.all()
         if self.request.get('permissions') is not "":
-            if isinstance(self.request.get('permissions'),int):
-                users = Person.all().filter('permissions = ', int(self.request.get('permissions')))
-            else:
+            try:
+                permissions = int(self.request.get('permissions'))
+                users = Person.all().filter('permissions = ', permissions)
+            except ValueError:
                 self.error(400)
         self.response.write(as_json(users))
             
