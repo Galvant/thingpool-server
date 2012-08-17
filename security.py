@@ -27,7 +27,9 @@
 from functools import wraps
 from google.appengine.api import users
 
-## CONSTANTS ##
+import dataModels
+
+## CONSTANTS ###################################################################
 
 # Note that an /ordering/ is implied here. A Requested user can do anything
 # a banned user can do, while an admin can do anything a manager can do.
@@ -47,7 +49,16 @@ USER_STATUS_DESCRIPTIONS = {
     USER_STATUS_ADMIN:     'admin'
 }
 
-## DECORATORS ##
+## UTILITY FUNCTIONS ###########################################################
+
+def request_tp_account(user):
+    person = dataModels.Person(
+        user_account = user,
+        permissions = USER_STATUS_REQUESTED
+        )
+    person.put()
+
+## DECORATORS ##################################################################
 
 def require_permission(perm, reason=None):
     # assert hasattr(Person(), 'can_' + perm)

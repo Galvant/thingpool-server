@@ -36,6 +36,23 @@
                 <h2>
                     {{ pool_name }}
                 </h2>
+                
+                {% if show_requested %}
+                <div class="ui-body ui-body-e">
+                    <p>
+                        A request for a {{ pool_name }} account has been placed.
+                        Once your request has been approved, you will be able
+                        to use {{ pool_name }}.
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if login_failed %}
+                <div class="ui-body ui-body-e">
+                    <p>{{ login_failure_reason }}</p>
+                </div>
+                {% endif %}
+                
                 <ul data-role="listview" data-divider-theme="b" data-inset="true">
                     <li data-role="list-divider" role="heading">
                         Things
