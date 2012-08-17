@@ -39,8 +39,12 @@ from security import *
 ## API REQUEST HANDLERS ########################################################
 
 def as_json(obj):
-    assert hasattr(obj, '__api__'), "Cannot serialize {} to JSON.".format(obj)
-    return json.dumps(obj.__api__())
+    # TODO: Generate error if list contents do not have __api__()
+    #assert hasattr(obj, '__api__'), "Cannot serialize {} to JSON.".format(obj)
+    if hasattr(obj,'__api__'):
+        return json.dumps(obj.__api__())
+    else:
+        return json.dumps([o.__api__() for o in obj])
 
 class UserHandler(webapp2.RequestHandler):
 
