@@ -30,6 +30,7 @@ from google.appengine.ext import db
 
 ## PYTHON STANDARD LIBRARY ##
 import json
+import datetime
 
 ## THINGPOOL MODULES ##
 import dataModels
@@ -238,7 +239,8 @@ class CheckoutHandler(webapp2.RequestHandler):
         GET /checkout/{id}
         Query specific checkout transaction details
         """
-        pass
+        q = Checkout.get_by_id(checkout_id)
+        self.response.write(as_json(q.get()))
     
     @require_permission('modify_checkout')
     @require_gae_login('deny')
@@ -247,7 +249,13 @@ class CheckoutHandler(webapp2.RequestHandler):
         MODIFY /checkout/{id}
         Modify checkout transaction to include a checkin date
         """
-        pass
+        # TODO: I think we need to restrict normal users to only checking in others'
+        # items if they are in turn checking the item out
+        # ie direct item transfer.
+        q = Checkout.get_by_id(checkout_id)
+        transaction = q.get()
+        transaction.checkin_date = datetime.datetime.now()
+        db.put(transaction)
 
 
 class RequestListHandler(webapp2.RequestHandler):
