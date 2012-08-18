@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {{ pool_name }} Admin Console
+        </title>
+        
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        
+        <script type="text/javascript">
+            function resolve(id, resolution) {
+                console.log(id);
+                $("#user_id").val(id);
+                $("#request_resolution").val(resolution);
+                
+                $("#pending_requests").submit();
+                return false;
+            };
+        </script>
+    </head>
+    
+    <body>
+    
+        {% if not message is none %}
+            {{ message }}
+            <hr></hr>
+        {% endif %}
+    
+        <h1>{{ pool_name }} Admin Console</h1>
+        
+        <h2>Pending Requests</h2>
+        <form id="pending_requests" action="{{ uri_for('admin_main') }}" method="post">
+            <input type="hidden" name="action" id="action" value="handle_account_request"></input>
+            <input type="hidden" name="user_id" id="user_id" value="None"></input>
+            <input type="hidden" name="request_resolution" id="request_resolution" value="None"></input>
+            <ul>  
+                {% for pending_user in pending_requests %}
+                    <li>
+                        {{ pending_user.user_account.nickname() }} &lt;{{ pending_user.user_account.email() }}&gt;
+                        <a href="#" onclick="resolve({{ pending_user.key().id() }}, 'approve');">Approve</a>
+                        <a href="#" onclick="resolve({{ pending_user.key().id() }}, 'deny');">Deny</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </form>
+        
+        <h2>Modify User</h2>
+    </body>
+</html>
