@@ -73,8 +73,7 @@ class UserHandler(webapp2.RequestHandler):
         Modifies the user given by ID {id}.
         """
         user = users.get_current_user()
-        q = Person.get_by_id(user_id)
-        target_user = q.get()
+        target_user = Person.get_by_id(user_id)
         new_permission = self.request.get('permissions')
         
         # Filter invalid permission settings
@@ -165,8 +164,12 @@ class ItemHandler(webapp2.RequestHandler):
         GET /items/{id}
         Queries the item given by the ID {id}.
         """
-        q = Item.get_by_id(item_id)
-        self.response.write(as_json(q.get()))
+        try:
+            item_id = int(item_id)
+            q = Item.get_by_id(item_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
     
     @require_permission('modify_item')
     @require_gae_login('deny')
@@ -176,7 +179,6 @@ class ItemHandler(webapp2.RequestHandler):
         Modifies the item given by ID {id}.
         """
         q = Item.get_by_id(item_id)
-        item = q.get()
         new_category = Category.get_by_id( self.query.get('category_id') )
         new_category = new_category.get()
         
@@ -203,8 +205,13 @@ class CategoryHandler(webapp2.RequestHandler):
         GET /categories/{id}
         Queries the category by the ID {id}
         """
-        q = Category.get_by_id(category_id)
-        self.response.write(as_json(q.get()))
+        try:
+            category_id = int(category_id)
+            q = Category.get_by_id(category_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
+        
         
     @require_permission('modify_category')
     @require_gae_login('deny')
@@ -232,7 +239,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
         #       - Also includes clearing outstanding requests if required
         q = Item.get_by_id(self.request.get('item_id'))
         c = CheckoutTransaction(
-                                item=q.get(),
+                                item=q,
                                 holder = users.get_current_user()
                                 )
         c.put()
@@ -255,8 +262,12 @@ class CheckoutHandler(webapp2.RequestHandler):
         GET /checkout/{id}
         Query specific checkout transaction details
         """
-        q = Checkout.get_by_id(checkout_id)
-        self.response.write(as_json(q.get()))
+        try:
+            checkout_id = int(checkout_id)
+            q = Checkout.get_by_id(category_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
     
     @require_permission('modify_checkout')
     @require_gae_login('deny')
