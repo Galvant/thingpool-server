@@ -27,6 +27,8 @@
 from functools import wraps
 from google.appengine.api import users
 
+import logging
+
 import dataModels
 
 ## CONSTANTS ###################################################################
@@ -60,15 +62,37 @@ def request_tp_account(user):
 
 ## DECORATORS ##################################################################
 
+def get_current_person():
+    user = users.get_current_user()
+    return dataModels.Person.all().filter('user_account =', user).get()
+
 def require_permission(perm, reason=None):
     # assert hasattr(Person(), 'can_' + perm)
 
-    # FIXME: This is currently a no-op intended to prototype the functionality.
-    #        Obviously, that is very, very, very bad for a security feature.
     # TODO:  The eventual implementation should use reason as an explanation of
     #        a denial if the permission is not present.
     def decorator(method):
-        return method
+        @wraps(method)
+        def wrapped_method(self, *args, **kwargs):
+            if users.is_current_user_admin():
+                # Skip all permissions checking for GAE admins.
+                logging.info('Permissions checking on {action} skipped for GAE admin user {acct}.'.format(action=self.request.uri, acct=users.get_current_user()))
+                return method(self, *args, **kwargs)
+        
+            person = get_current_person()
+            
+            if person is not None:
+            
+                if getattr(person, 'can_' + perm):
+                    return method(self, *args, **kwargs)
+                else:
+                    logging.info('Action {action} denied to {acct} due to not having the permission {perm}.'.format(action=self.request.uri, acct=person.user_account, perm=perm))
+                    self.error(403) # TODO: explain to user.                    
+            else:
+                logging.info('Action {action} denied to {acct} due to not having a ThingPool account.'.format(action=self.request.uri, acct=person.user_account))
+                self.error(403) # TODO: explain to user.
+    
+        return wrapped_method
         
     return decorator
 

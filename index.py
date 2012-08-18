@@ -38,6 +38,7 @@ import os
 import api
 import config
 import mobile_site
+import admin_console
 
 ## CORE SERVER #################################################################
 
@@ -46,6 +47,11 @@ routes = [
     webapp2.Route('/',
         handler=mobile_site.MainPage,
         name='mobile_main'),
+    
+    # Admin console
+    webapp2.Route('/admin',
+        handler=admin_console.MainPage,
+        name='admin_main'),
     
     # API routes
     webapp2.Route('/api/users',

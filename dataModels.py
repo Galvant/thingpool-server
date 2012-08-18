@@ -58,6 +58,12 @@ class Person(db.Model):
         #       Consider adding that check as a decorator.
         return self.permissions >= s.USER_STATUS_USER
         
+    @property
+    def can_access_admin(self):
+        # Some admin functions disabled for managers that aren't admins,
+        # but they should still have access to the console.
+        return self.permissions >= s.USER_STATUS_MANAGER
+        
     def __api__(self):
         return {
             'id': self.key().id(),
