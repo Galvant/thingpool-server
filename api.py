@@ -67,30 +67,35 @@ class UserHandler(webapp2.RequestHandler):
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
     @require_gae_login('deny')
-    def modify(self, user_id):
+    def post(self, user_id):
         """
-        MODIFY /users/{id}
+        POST /users/{id}
         Modifies the user given by ID {id}.
         """
         user = users.get_current_user()
-        target_user = Person.get_by_id(user_id)
-        new_permission = self.request.get('permissions')
-        
-        # Filter invalid permission settings
-        # TODO: move this filter to security.py
-        if (new_permission < USER_STATUS_BANNED) or (new_permission > USER_STATUS_ADMIN):
-            self.error(400)
-            return
+        try:
+            user_id = int(user_id)
+            target_user = Person.get_by_id(user_id)
+            new_permission = self.request.get('permissions')
             
-        # Manager can change those below
-        # TODO: Add can_change_permissions to UserModel.
-        if (user.permissions >= USER_STATUS_MANAGER) and (new_permission < USER_STATUS_MANAGER):
-            target_user.permissions = new_permission
-            db.put(target_user)            
-        # Admins can add more admins. GAE admin should not have to handle system at all.
-        elif (user.permissions >= USER_STATUS_ADMIN) and (new_permission <= USER_STATUS_ADMIN):
-            target_user.permissions = new_permission
-            db.put(target_user)
+            if new_permission is not "":
+                new_permission = int(new_permission)
+                # Filter invalid permission settings
+                # TODO: move this filter to security.py
+                if (new_permission < USER_STATUS_BANNED) or (new_permission > USER_STATUS_ADMIN):
+                    self.error(400)
+                    return 
+                # Manager can change those below
+                # TODO: Add can_change_permissions to UserModel.
+                if (user.permissions >= USER_STATUS_MANAGER) and (new_permission < USER_STATUS_MANAGER):
+                    target_user.permissions = new_permission
+                    db.put(target_user)            
+                # Admins can add more admins. GAE admin should not have to handle system at all.
+                elif (user.permissions >= USER_STATUS_ADMIN) and (new_permission <= USER_STATUS_ADMIN):
+                    target_user.permissions = new_permission
+                    db.put(target_user)
+        except ValueError:
+            self.error(400)
         
         
 class UserListHandler(webapp2.RequestHandler):
@@ -140,10 +145,13 @@ class ItemListHandler(webapp2.RequestHandler):
         POST /items
         Creates a new item as specified by the POST content.
         """
-        item = Item(
-                    name = self.request.get('name')
-                    )
-        item.put()
+        if self.request.post('name') is not "":
+            item = Item(
+                        name = self.request.post('name')
+                        )
+            item.put()
+        else:
+            self.error(400)
         
     @require_permission('query_items')
     @require_gae_login('deny')
@@ -152,8 +160,14 @@ class ItemListHandler(webapp2.RequestHandler):
         GET /items
         Returns a list of all items matching a given filter
         """
-        #TODO: Filter results and whatnot, serialize to JSON
-        q = Item.all()
+        items = Item.all()
+        if self.request.get("category") is not "":
+            try:
+                category = Category.get_by_id( int(self.request.get("category") )
+                items = Item.all().filter("category = ", category)
+            except ValueError:
+                self.error(400)
+        self.response.write(as_json(items))         
 
 
 class ItemHandler(webapp2.RequestHandler):
@@ -173,28 +187,31 @@ class ItemHandler(webapp2.RequestHandler):
     
     @require_permission('modify_item')
     @require_gae_login('deny')
-    def modify(self, item_id):
+    def post(self, item_id):
         """
-        MODIFY /items/{id}
+        POST /items/{id}
         Modifies the item given by ID {id}.
         """
-        q = Item.get_by_id(item_id)
-        new_category = Category.get_by_id( self.query.get('category_id') )
-        new_category = new_category.get()
-        
-        item.name = self.request.get('name')
-        item.category = new_category
-        
-        if self.request.get('name2') is not "":
-            item.name2 = self.request.get('name2')
-            
-        if self.request.get('content') is not "":
-            item.content = self.request.get('content')
-        
-        if self.request.get('store_location') is not "":
-            item.store_location = self.request.get('store_location')
-        
-        db.put(item)
+        try:
+            item_id = int(item_id)
+            item = Item.get_by_id(item_id)
+            if item is not None:
+                if self.request.post('category_id') is not "":
+                    new_category = Category.get_by_id(int(self.request.post('category_id')))
+                    item.category = new_category
+                if self.request.post('name') is not "":
+                    item.name = self.request.post('name')
+                if self.request.post('name2') is not "":
+                    item.name2 = self.request.post('name2')  
+                if self.request.post('content') is not "":
+                    item.content = self.request.post('content')
+                if self.request.post('store_location') is not "":
+                    item.store_location = self.request.post('store_location')
+                db.put(item)
+            else:
+                self.error(400)
+        except ValueError:
+            self.error(400)
  
         
 class CategoryHandler(webapp2.RequestHandler):
@@ -211,7 +228,6 @@ class CategoryHandler(webapp2.RequestHandler):
             self.response.write(as_json(q))
         except ValueError:
             self.error(400)
-        
         
     @require_permission('modify_category')
     @require_gae_login('deny')
@@ -237,12 +253,15 @@ class CheckoutListHandler(webapp2.RequestHandler):
         #           - Clear previous checkout transaction (ie call checkin routines)
         #           - Deny if same user already has it checked out
         #       - Also includes clearing outstanding requests if required
-        q = Item.get_by_id(self.request.get('item_id'))
-        c = CheckoutTransaction(
-                                item=q,
-                                holder = users.get_current_user()
-                                )
-        c.put()
+        try:
+            q = Item.get_by_id(int(self.request.post('item_id')))
+            c = CheckoutTransaction(
+                                    item=q,
+                                    holder = users.get_current_user()
+                                    )
+            c.put()
+        except ValueError:
+            self.error(400)
         
     @require_permission('query_checkout_transactions')
     @require_gae_login('deny')
@@ -251,8 +270,21 @@ class CheckoutListHandler(webapp2.RequestHandler):
         GET /checkout
         Query checkout transaction history for a user or item
         """
-        # TODO: Everything
-        pass
+        # TODO: Filter on date ranges, consider limiting number of transactions returned
+        checkouts = CheckoutTransaction.all()
+        if self.request.get("item_id") is not "":
+            try:
+                item = Item.get_by_id(int(self.requst.get('item_id')))
+                checkouts = CheckoutTransaction.all().filter("item = ", item)
+            except ValueError:
+                self.error(400)
+        if self.request.get("user_id") is not "":
+            try:
+                user = Person.get_by_id(int(self.requst.get('user_id')))
+                checkouts = CheckoutTransaction.all().filter("holder = ", item)
+            except ValueError:
+                self.error(400)
+        self.response.write(as_json(checkouts))
 
 class CheckoutHandler(webapp2.RequestHandler):
     @require_permission('query_checkout')
@@ -271,18 +303,20 @@ class CheckoutHandler(webapp2.RequestHandler):
     
     @require_permission('modify_checkout')
     @require_gae_login('deny')
-    def modify(self, checkout_id):
+    def post(self, checkout_id):
         """
-        MODIFY /checkout/{id}
+        POST /checkout/{id}
         Modify checkout transaction to include a checkin date
         """
         # TODO: I think we need to restrict normal users to only checking in others'
         # items if they are in turn checking the item out
         # ie direct item transfer.
-        q = Checkout.get_by_id(checkout_id)
-        transaction = q.get()
-        transaction.checkin_date = datetime.datetime.now()
-        db.put(transaction)
+        try:
+            transaction = Checkout.get_by_id(int(checkout_id))
+            transaction.checkin_date = datetime.datetime.now()
+            db.put(transaction)
+        except ValueError:
+            self.error(400)
 
 
 class RequestListHandler(webapp2.RequestHandler):
