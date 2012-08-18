@@ -57,8 +57,12 @@ class UserHandler(webapp2.RequestHandler):
         GET /users/{id}
         Queries the user given by the ID {id}.
         """
-        q = Person.get_by_id(user_id)
-        self.response.write(as_json(q.get()))
+        try:
+            user_id = int(user_id)
+            q = Person.get_by_id(user_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
 
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
@@ -69,8 +73,7 @@ class UserHandler(webapp2.RequestHandler):
         Modifies the user given by ID {id}.
         """
         user = users.get_current_user()
-        q = Person.get_by_id(user_id)
-        target_user = q.get()
+        target_user = Person.get_by_id(user_id)
         new_permission = self.request.get('permissions')
         
         # Filter invalid permission settings
@@ -99,13 +102,15 @@ class UserListHandler(webapp2.RequestHandler):
         Returns a list of all users matching a given filter, paginated and
         starting at a given index.
         """
-        user = users.get_current_user()
-        q = Person.all().filter('user_account = ', user)
-        
-        # TODO: build a filter from query strings, paginate, serialize to JSON.
-        if q.get().permissions >= USER_STATUS_MANAGER: # if admin or manager
-            q = Person.all().filter('permissions = ', self.request.get('permissions'))
-            
+        # TODO: filter on additional query strings
+        users = Person.all()
+        if self.request.get('permissions') is not "":
+            try:
+                permissions = int(self.request.get('permissions'))
+                users = Person.all().filter('permissions = ', permissions)
+            except ValueError:
+                self.error(400)
+        self.response.write(as_json(users))
     
     @require_permission('request_account', reason="Banned users cannot request accounts.") # Denied only for banned users.
     @require_gae_login('deny')
@@ -159,8 +164,12 @@ class ItemHandler(webapp2.RequestHandler):
         GET /items/{id}
         Queries the item given by the ID {id}.
         """
-        q = Item.get_by_id(item_id)
-        self.response.write(as_json(q.get()))
+        try:
+            item_id = int(item_id)
+            q = Item.get_by_id(item_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
     
     @require_permission('modify_item')
     @require_gae_login('deny')
@@ -170,7 +179,6 @@ class ItemHandler(webapp2.RequestHandler):
         Modifies the item given by ID {id}.
         """
         q = Item.get_by_id(item_id)
-        item = q.get()
         new_category = Category.get_by_id( self.query.get('category_id') )
         new_category = new_category.get()
         
@@ -197,8 +205,13 @@ class CategoryHandler(webapp2.RequestHandler):
         GET /categories/{id}
         Queries the category by the ID {id}
         """
-        q = Category.get_by_id(category_id)
-        self.response.write(as_json(q.get()))
+        try:
+            category_id = int(category_id)
+            q = Category.get_by_id(category_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
+        
         
     @require_permission('modify_category')
     @require_gae_login('deny')
@@ -226,7 +239,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
         #       - Also includes clearing outstanding requests if required
         q = Item.get_by_id(self.request.get('item_id'))
         c = CheckoutTransaction(
-                                item=q.get(),
+                                item=q,
                                 holder = users.get_current_user()
                                 )
         c.put()
@@ -249,8 +262,12 @@ class CheckoutHandler(webapp2.RequestHandler):
         GET /checkout/{id}
         Query specific checkout transaction details
         """
-        q = Checkout.get_by_id(checkout_id)
-        self.response.write(as_json(q.get()))
+        try:
+            checkout_id = int(checkout_id)
+            q = Checkout.get_by_id(category_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
     
     @require_permission('modify_checkout')
     @require_gae_login('deny')
