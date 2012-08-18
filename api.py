@@ -57,8 +57,12 @@ class UserHandler(webapp2.RequestHandler):
         GET /users/{id}
         Queries the user given by the ID {id}.
         """
-        q = Person.get_by_id(user_id)
-        self.response.write(as_json(q.get()))
+        try:
+            user_id = int(user_id)
+            q = Person.get_by_id(user_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
 
     # Permissions checking is a little more complicated here, so we
     # don't use @require_permission.
@@ -98,7 +102,7 @@ class UserListHandler(webapp2.RequestHandler):
         GET /users
         Returns a list of all users matching a given filter, paginated and
         starting at a given index.
-        """        
+        """
         # TODO: filter on additional query strings
         users = Person.all()
         if self.request.get('permissions') is not "":
@@ -108,7 +112,6 @@ class UserListHandler(webapp2.RequestHandler):
             except ValueError:
                 self.error(400)
         self.response.write(as_json(users))
-            
     
     @require_permission('request_account', reason="Banned users cannot request accounts.") # Denied only for banned users.
     @require_gae_login('deny')
