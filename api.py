@@ -259,14 +259,19 @@ class CheckoutListHandler(webapp2.RequestHandler):
         POST /checkout
         Creates a new checkout transaction
         """
-        # TODO: 
-        #       - Direct item transfer without explicit 'checkin'
-        #           - Clear previous checkout transaction (ie call checkin routines)
-        #           - Deny if same user already has it checked out
-        #       - Also includes clearing outstanding requests if required
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
             user = users.get_current_user()
+            if item.is_checked_out(): # Clear previous checkout transaction
+                prev_checkout = CheckoutTransaction.all().filter('item =', item).filter('checkin_date =', None)
+                prev_checkout = prev_checkout.get()
+                prev_checkout.checkin_date = datetime.datetime.now()
+                db.put(prev_checkout)
+            if item.is_requested(): # If item has an outstanding request transaction for this user
+                request = RequestTransaction.all().filter('item =', self).filter('resolved_date =', None).filter('requestor = ', user)
+                request = request.get()
+                request.resolved_date = datetime.datetime.now()
+                db.put(request)
             c = CheckoutTransaction(
                                     item=item,
                                     holder = user
@@ -340,12 +345,16 @@ class RequestListHandler(webapp2.RequestHandler):
         Add a new request transaction
         """
         try:
-            q = Item.get_by_id(int(self.request.post('item_id')))
-            c = RequestTransaction(
-                                    item=q,
-                                    requestor = users.get_current_user()
-                                    )
-            c.put()
+            item = Item.get_by_id(int(self.request.post('item_id')))
+            user = users.get_current_user()
+            # Check if current user does not already have outstanding request on item
+            if not RequestTransaction.all().filter("item = ", item).filter("requestor = ",user).filter("resolved_date = ", None):
+                c = RequestTransaction(
+                                        item=item,
+                                        requestor = users.get_current_user()
+                                        )
+                c.put()
+            # else silently fail
         except ValueError:
             self.error(400)
     
@@ -397,6 +406,9 @@ class RequestHandler(webapp2.RequestHandler):
         Modify request transaction to include a resolution date
         """
         # TODO: A request should only be cleared by the request-owner
+        #
+        # Do we need this? These are automatically resolved when the request-owner
+        # checks the item out
         try:
             transaction = RequestTransaction.get_by_id(int(request_id))
             transaction.resolved_date = datetime.datetime.now()
