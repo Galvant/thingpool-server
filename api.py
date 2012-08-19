@@ -231,13 +231,24 @@ class CategoryHandler(webapp2.RequestHandler):
         
     @require_permission('modify_category')
     @require_gae_login('deny')
-    def modify(self, category_id):
+    def post(self, category_id):
         """
-        MODIFY /categories/{id}
+        POST /categories/{id}
         Modifies the category by the ID {id}
         """
-        # TODO: Everything
-        pass
+        try:
+            category_id = int(category_id)
+            q = Category.get_by_id(category_id)
+            new_parent = self.request.post('parent_id')
+            if new_parent is not "":
+                new_parent = Category.get_by_id(int(new_parent))
+                q.category_parent = new_parent
+            new_name = self.request.post('name')
+            if new_name is not "":
+                q.name = new_name
+            db.put(q)
+        except ValueError:
+            self.error(400)
 
 
 class CheckoutListHandler(webapp2.RequestHandler):
@@ -254,10 +265,11 @@ class CheckoutListHandler(webapp2.RequestHandler):
         #           - Deny if same user already has it checked out
         #       - Also includes clearing outstanding requests if required
         try:
-            q = Item.get_by_id(int(self.request.post('item_id')))
+            item = Item.get_by_id(int(self.request.post('item_id')))
+            user = users.get_current_user()
             c = CheckoutTransaction(
-                                    item=q,
-                                    holder = users.get_current_user()
+                                    item=item,
+                                    holder = user
                                     )
             c.put()
         except ValueError:
@@ -281,7 +293,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
         if self.request.get("user_id") is not "":
             try:
                 user = Person.get_by_id(int(self.requst.get('user_id')))
-                checkouts = CheckoutTransaction.all().filter("holder = ", item)
+                checkouts = CheckoutTransaction.all().filter("holder = ", user)
             except ValueError:
                 self.error(400)
         self.response.write(as_json(checkouts))
@@ -296,7 +308,7 @@ class CheckoutHandler(webapp2.RequestHandler):
         """
         try:
             checkout_id = int(checkout_id)
-            q = Checkout.get_by_id(category_id)
+            q = CheckoutTransaction.get_by_id(category_id)
             self.response.write(as_json(q))
         except ValueError:
             self.error(400)
@@ -312,7 +324,7 @@ class CheckoutHandler(webapp2.RequestHandler):
         # items if they are in turn checking the item out
         # ie direct item transfer.
         try:
-            transaction = Checkout.get_by_id(int(checkout_id))
+            transaction = CheckoutTransaction.get_by_id(int(checkout_id))
             transaction.checkin_date = datetime.datetime.now()
             db.put(transaction)
         except ValueError:
@@ -327,7 +339,15 @@ class RequestListHandler(webapp2.RequestHandler):
         POST /request
         Add a new request transaction
         """
-        pass
+        try:
+            q = Item.get_by_id(int(self.request.post('item_id')))
+            c = RequestTransaction(
+                                    item=q,
+                                    requestor = users.get_current_user()
+                                    )
+            c.put()
+        except ValueError:
+            self.error(400)
     
     @require_permission('query_request_transactions')
     @require_gae_login('deny')
@@ -336,8 +356,22 @@ class RequestListHandler(webapp2.RequestHandler):
         GET /request
         Query request transaction history for a user or item
         """
-        # TODO: Everything
-        pass
+        # TODO: Filter on date ranges, consider limiting number of transactions returned
+        # also filter on current outstanding requests
+        requests = RequestTransaction.all()
+        if self.request.get("item_id") is not "":
+            try:
+                item = Item.get_by_id(int(self.requst.get('item_id')))
+                requests = RequestTransaction.all().filter("item = ", item)
+            except ValueError:
+                self.error(400)
+        if self.request.get("user_id") is not "":
+            try:
+                user = Person.get_by_id(int(self.requst.get('user_id')))
+                requests = RequestTransaction.all().filter("requestor = ", user)
+            except ValueError:
+                self.error(400)
+        self.response.write(as_json(requests))
     
     
 class RequestHandler(webapp2.RequestHandler):
@@ -348,16 +382,26 @@ class RequestHandler(webapp2.RequestHandler):
         GET /request/{id}
         Query specific request transaction details
         """
-        # TODO: Everything
-        pass
+        try:
+            request_id = int(request_id)
+            q = RequestTransaction.get_by_id(category_id)
+            self.response.write(as_json(q))
+        except ValueError:
+            self.error(400)
         
     @require_permission('modify_request')
     @require_gae_login('deny')
-    def modify(self, checkout_id):
+    def post(self, request_id):
         """
-        MODIFY /request/{id}
+        POST /request/{id}
         Modify request transaction to include a resolution date
         """
-        # TODO: Everything
-        pass
+        # TODO: A request should only be cleared by the request-owner
+        try:
+            transaction = RequestTransaction.get_by_id(int(request_id))
+            transaction.resolved_date = datetime.datetime.now()
+            db.put(transaction)
+        except ValueError:
+            self.error(400)
+
         
