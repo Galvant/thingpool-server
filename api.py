@@ -316,20 +316,47 @@ class CheckoutListHandler(webapp2.RequestHandler):
         GET /checkout
         Query checkout transaction history for a user or item
         """
-        # TODO: Filter on date ranges, consider limiting number of transactions returned
+        # TODO: Consider limiting number of transactions returned
         checkouts = CheckoutTransaction.all()
         if self.request.get("item_id") is not "":
             try:
                 item = Item.get_by_id(int(self.requst.get('item_id')))
-                checkouts = CheckoutTransaction.all().filter("item = ", item)
+                checkouts = checkouts.filter("item = ", item)
             except ValueError:
                 self.error(400)
         if self.request.get("user_id") is not "":
             try:
                 user = Person.get_by_id(int(self.requst.get('user_id')))
-                checkouts = CheckoutTransaction.all().filter("holder = ", user)
+                checkouts = checkouts.filter("holder = ", user)
             except ValueError:
                 self.error(400)
+                
+        year_start = self.request.get('year_start')
+        month_start = self.request.get('month_start')
+        day_start = self.request.get('day_start')
+        if (year_start is not "") and (month_start is not "") and (day_start is not ""):
+            try:
+                year_start = int(year_start)
+                month_start = int(month_start)
+                day_start = int(day_start)
+                start_date = datetime.datetime(year_start,month_start,day_start)
+                checkouts = checkouts.filter('checkout_date >= ', start_date)
+             except ValueError:
+                self.error(400)
+                
+        year_end = self.request.get('year_end')
+        month_end = self.request.get('month_end')
+        day_end = self.request.get('day_end')
+        if (year_end is not "") and (month_end is not "") and (day_end is not ""):
+            try:
+                year_end = int(year_end)
+                month_end = int(month_end)
+                day_end = int(day_end)
+                end_date = datetime.datetime(year_end,month_end,day_end)
+                checkouts = checkouts.filter('checkout_date <= ', end_date)
+             except ValueError:
+                self.error(400)
+                
         self.response.write(as_json(checkouts))
 
 class CheckoutHandler(webapp2.RequestHandler):
