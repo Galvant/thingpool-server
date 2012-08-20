@@ -47,6 +47,15 @@ def as_json(obj):
         return json.dumps(obj.__api__())
     else:
         return json.dumps([o.__api__() for o in obj])
+        
+class ServerInfoHandler(webapp2.RequestHandler):
+    # No security here, all should be able to get this information
+    def get(self):
+        """
+        GET /info
+        Queries basic server information (eg: API version)
+        """
+        pass
 
 class UserHandler(webapp2.RequestHandler):
 
@@ -212,6 +221,18 @@ class ItemHandler(webapp2.RequestHandler):
                 self.error(400)
         except ValueError:
             self.error(400)
+
+
+class CategoryListHandler(webapp2.RequestHandler):
+    @require_permission('query_categories')
+    @require_gae_login('deny')
+    def get(self):
+        """
+        GET /categories
+        Queries list of categories, filtered by some parent
+        If no parent specified, assume root categories
+        """
+        pass
  
         
 class CategoryHandler(webapp2.RequestHandler):
