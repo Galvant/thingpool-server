@@ -291,6 +291,8 @@ class CheckoutListHandler(webapp2.RequestHandler):
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
             user = users.get_current_user()
+            user = Person.all().filter("user_account = ",user)
+            user = user.get()
             if item.is_checked_out(): # Clear previous checkout transaction
                 prev_checkout = CheckoutTransaction.all().filter('item =', item).filter('checkin_date =', None)
                 prev_checkout = prev_checkout.get()
@@ -381,13 +383,14 @@ class CheckoutHandler(webapp2.RequestHandler):
         POST /checkout/{id}
         Modify checkout transaction to include a checkin date
         """
-        # TODO: I think we need to restrict normal users to only checking in others'
-        # items if they are in turn checking the item out
-        # ie direct item transfer.
         try:
             transaction = CheckoutTransaction.get_by_id(int(checkout_id))
-            transaction.checkin_date = datetime.datetime.now()
-            db.put(transaction)
+            user = users.get_current_user()
+            user = Person.all().filter("user_account = ",user)
+            user = user.get()
+            if (transaction.holder is user) or (user.permissions >= USER_STATUS_MANAGER):
+                transaction.checkin_date = datetime.datetime.now()
+                db.put(transaction)
         except ValueError:
             self.error(400)
 
@@ -403,11 +406,13 @@ class RequestListHandler(webapp2.RequestHandler):
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
             user = users.get_current_user()
+            user = Person.all().filter("user_account = ",user)
+            user = user.get()
             # Check if current user does not already have outstanding request on item
             if not RequestTransaction.all().filter("item = ", item).filter("requestor = ",user).filter("resolved_date = ", None):
                 c = RequestTransaction(
                                         item=item,
-                                        requestor = users.get_current_user()
+                                        requestor = user
                                         )
                 c.put()
             # else silently fail
