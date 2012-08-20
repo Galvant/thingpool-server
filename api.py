@@ -232,7 +232,16 @@ class CategoryListHandler(webapp2.RequestHandler):
         Queries list of categories, filtered by some parent
         If no parent specified, assume root categories
         """
-        pass
+        if self.request.get('parent') is "":
+            categories = Category.all().filter("category_parent = ", None)
+        else:
+            try:
+                parent_id = int(self.request.get('parent'))
+                category_parent = Category.get_by_id(parent_id)
+                categories = Category.all().filter("category_parent = ", category_parent)
+             except ValueError:
+                self.error(400)
+        self.response.write(as_json(categories))
  
         
 class CategoryHandler(webapp2.RequestHandler):
