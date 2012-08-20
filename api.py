@@ -58,7 +58,6 @@ class ServerInfoHandler(webapp2.RequestHandler):
         pass
 
 class UserHandler(webapp2.RequestHandler):
-
     @require_permission('query_user')
     @require_gae_login('deny')
     def get(self, user_id):

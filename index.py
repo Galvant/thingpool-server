@@ -54,6 +54,10 @@ routes = [
         name='admin_main'),
     
     # API routes
+    webapp2.Route('/api/info',
+        handler=api.ServerInfoHandler,
+        name='api_server_info'
+        ),
     webapp2.Route('/api/users',
         handler=api.UserListHandler,
         name='api_users_list'
@@ -69,6 +73,30 @@ routes = [
     webapp2.Route('/api/items/<item_id>',
         handler=api.ItemHandler,
         name='api_item'
+        ),
+    webapp2.Route('/api/categories',
+        handler=api.CategoryListHandler,
+        name='api_categories_list'
+        ),
+    webapp2.Route('/api/categories/<category_id>',
+        handler=api.CategoryHandler,
+        name='api_category'
+        ),
+    webapp2.Route('/api/checkout',
+        handler=api.CheckoutListHandler,
+        name='api_checkout_list'
+        ),
+    webapp2.Route('/api/checkout/<checkout_id>',
+        handler=api.CheckoutHandler,
+        name='api_checkout'
+        ),
+    webapp2.Route('/api/request',
+        handler=api.RequestListHandler,
+        name='api_request_list'
+        ),
+    webapp2.Route('/api/request/<request_id>',
+        handler=api.RequestHandler,
+        name='api_request'
         ),
 ]
 
