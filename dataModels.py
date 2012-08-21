@@ -64,6 +64,13 @@ class Person(db.Model):
         # but they should still have access to the console.
         return self.permissions >= s.USER_STATUS_MANAGER
         
+    @staticmethod
+    def get_person(user=None):
+        if user is None:
+            user = users.get_current_user()
+        user = Person.all().filter("user_account = ",user)
+        return user.get()
+        
     def __api__(self):
         return {
             'id': self.key().id(),

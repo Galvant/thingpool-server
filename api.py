@@ -290,9 +290,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
         """
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
-            user = users.get_current_user()
-            user = Person.all().filter("user_account = ",user)
-            user = user.get()
+            user = Person.get_person()
             if item.is_checked_out(): # Clear previous checkout transaction
                 prev_checkout = CheckoutTransaction.all().filter('item =', item).filter('checkin_date =', None)
                 prev_checkout = prev_checkout.get()
@@ -385,9 +383,7 @@ class CheckoutHandler(webapp2.RequestHandler):
         """
         try:
             transaction = CheckoutTransaction.get_by_id(int(checkout_id))
-            user = users.get_current_user()
-            user = Person.all().filter("user_account = ",user)
-            user = user.get()
+            user = Person.get_person()
             if (transaction.holder is user) or (user.permissions >= USER_STATUS_MANAGER):
                 transaction.checkin_date = datetime.datetime.now()
                 db.put(transaction)
@@ -405,9 +401,7 @@ class RequestListHandler(webapp2.RequestHandler):
         """
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
-            user = users.get_current_user()
-            user = Person.all().filter("user_account = ",user)
-            user = user.get()
+            user = Person.get_person()
             # Check if current user does not already have outstanding request on item
             if not RequestTransaction.all().filter("item = ", item).filter("requestor = ",user).filter("resolved_date = ", None):
                 c = RequestTransaction(
