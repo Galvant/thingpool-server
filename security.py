@@ -39,14 +39,16 @@ USER_STATUS_BANNED    = -1
 USER_STATUS_UNKNOWN   =  0 # To be used if the permissions level is unknown.
 USER_STATUS_REQUESTED =  1
 USER_STATUS_USER      =  2
-USER_STATUS_MANAGER   =  3
-USER_STATUS_ADMIN     =  4
+USER_STATUS_KIOSK     =  3 # Able to checkout under other's accounts
+USER_STATUS_MANAGER   =  4
+USER_STATUS_ADMIN     =  5
 
 USER_STATUS_DESCRIPTIONS = {
     USER_STATUS_BANNED:    'banned',
     USER_STATUS_UNKNOWN:   'none',
     USER_STATUS_REQUESTED: 'requested',
     USER_STATUS_USER:      'user',
+    USER_STATUS_KIOSK:     'kiosk',
     USER_STATUS_MANAGER:   'manager',
     USER_STATUS_ADMIN:     'admin'
 }

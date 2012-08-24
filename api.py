@@ -291,6 +291,12 @@ class CheckoutListHandler(webapp2.RequestHandler):
         try:
             item = Item.get_by_id(int(self.request.post('item_id')))
             user = Person.get_person()
+            if user.permissions is USER_STATUS_KIOSK: # If kiosk account, use provided keycard
+                keycard_id = self.request.post('keycard')
+                if keycard_id is not "":
+                    user = Person.get_person(keycard=keycard_id)
+                else:
+                    self.error(400)
             if item.is_checked_out(): # Clear previous checkout transaction
                 prev_checkout = CheckoutTransaction.all().filter('item =', item).filter('checkin_date =', None)
                 prev_checkout = prev_checkout.get()

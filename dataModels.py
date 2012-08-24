@@ -44,7 +44,8 @@ from index import *
 
 class Person(db.Model):
     user_account = db.UserProperty(required=True) # Used to store User account
-    permissions = db.IntegerProperty(required=True) # Five levels of permissions: Admin, manager, user, requested, banned
+    permissions = db.IntegerProperty(required=True) # Six levels of permissions: Admin, manager, kiosk, user, requested, banned
+    keycard = db.StringProperty(required=False) # TODO: Make sure this is unique
     
     @property
     def uri(self):
@@ -65,10 +66,13 @@ class Person(db.Model):
         return self.permissions >= s.USER_STATUS_MANAGER
         
     @staticmethod
-    def get_person(user=None):
-        if user is None:
+    def get_person(user=None, keycard=None):
+        if user is not None and keycard is None:
+            user = Person.all().filter("user_account = ",user)
+        elif user is None and keycard is not None:
+            user = Person.all().filter('keycard = ', keycard) 
+        else:
             user = users.get_current_user()
-        user = Person.all().filter("user_account = ",user)
         return user.get()
         
     def __api__(self):
