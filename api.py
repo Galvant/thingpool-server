@@ -80,7 +80,7 @@ class UserHandler(webapp2.RequestHandler):
         POST /users/{id}
         Modifies the user given by ID {id}.
         """
-        user = users.get_current_user()
+        user = get_current_person()
         try:
             user_id = int(user_id)
             target_user = Person.get_by_id(user_id)
@@ -99,7 +99,7 @@ class UserHandler(webapp2.RequestHandler):
                     target_user.permissions = new_permission
                     db.put(target_user)            
                 # Admins can add more admins. GAE admin should not have to handle system at all.
-                elif (user.permissions >= USER_STATUS_ADMIN) and (new_permission <= USER_STATUS_ADMIN):
+                elif ( (user.permissions >= USER_STATUS_ADMIN) or users.is_current_user_admin() ) and (new_permission <= USER_STATUS_ADMIN ):
                     target_user.permissions = new_permission
                     db.put(target_user)
         except ValueError:
@@ -168,13 +168,15 @@ class ItemListHandler(webapp2.RequestHandler):
         GET /items
         Returns a list of all items matching a given filter
         """
-        items = Item.all()
-        if self.request.get("category") is not "":
+        if self.request.get("category") is "":
+            items = Item.all()
+        # TODO: Find why the following code block causes the dev server to report Syntax Error
+        '''else:
             try:
                 category = Category.get_by_id( int(self.request.get("category") )
                 items = Item.all().filter("category = ", category)
             except ValueError:
-                self.error(400)
+                self.error(400)'''
         self.response.write(as_json(items))         
 
 
