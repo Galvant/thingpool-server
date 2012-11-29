@@ -17,27 +17,64 @@
                 return false;
             };
             
-            function populate_modify_fields(id, user_name, user_email, user_permissions) {
+            function populate_modify_fields(id, user_name, user_email, user_permissions, user_keycard) {
                 console.log(id);
                 document.getElementById('user_name').value = user_name;
                 document.getElementById('user_email').value = user_email;
+                document.getElementById('modify_id').value = id;
+                document.getElementById('modify_keycard').value = user_keycard;
                 
                 switch(user_permissions) {
                     case -1: // User is banned
                         document.getElementById('radio_banned').checked = true;
+                        document.getElementById('modify_permissions').value = -1;
                         break;
                     case 2: // User is a regular user
                         document.getElementById('radio_user').checked = true;
+                        document.getElementById('modify_permissions').value = 2;
                         break;
                     case 3: // User is actually a kiosk account
                         document.getElementById('radio_kiosk').checked = true;
+                        document.getElementById('modify_permissions').value = 3;
                         break;
                     case 4: // User is a manager
                         document.getElementById('radio_manager').checked = true;
+                        document.getElementById('modify_permissions').value = 4;
                         break;
                 }
                 
                 return false;
+            };
+            
+            function submit_modify_user() {
+                //console.log(id);
+                var user_id = document.getElementById('modify_id').value;
+                var user_permissions = 2;
+                var user_keycard = document.getElementById('modify_keycard').value;
+                
+                if (document.getElementById('radio_banned').checked == true) {
+                    user_permissions = -1;
+                }
+                else if (document.getElementById('radio_user').checked == true) {
+                    user_permissions = 2;
+                }
+                else if (document.getElementById('radio_kiosk').checked == true) {
+                    user_permissions = 3;
+                }
+                else if (document.getElementById('radio_manager').checked == true) {
+                    user_permissions = 4;
+                }
+                
+                console.log(user_id);
+                console.log(user_permissions);
+                console.log(user_keycard);
+                
+                $.post(
+                    "{{ uri_for('api_users_list') }}/" + user_id, // POST target of /api/users/{id}
+                    
+                    { permissions: user_permissions } // data to send to server
+                    
+                )
             };
         </script>
     </head>
@@ -70,6 +107,10 @@
         <h2>Modify User</h2>
         <ul>
             <form id="modify_user" action="{{ uri_for('admin_main') }}" method="post">
+                <input type="hidden" name="modify_permissions" id="modify_permissions" value="None">
+                <input type="hidden" name="modify_id" id="modify_id" value="None">
+                <input type="hidden" name="modify_keycard" id="modify_keycard" value="None">
+            
                 <label for="user_name">Name</label>
                 <input type="text" name="user_name" id="user_name" value="Name" disabled="true"><br>
                 <label for="user_email">Email</label>
@@ -90,7 +131,8 @@
                 <input type="radio" name="user_status" id="radio_manager">
                 <label for="radio_manager">Manager</label><br><br>
                 
-                <input type="submit" value="Submit">
+                <a href="#" onclick="submit_modify_user( );">Submit</a>
+                
                 
             </form>
             <br>
@@ -100,7 +142,8 @@
                     <a href="#" onclick="populate_modify_fields( {{ user.key().id() }},
                                                                 '{{ user.user_account.nickname() }}',
                                                                 '{{ user.user_account.email() }}',
-                                                                {{ user.permissions }} );">Modify</a>
+                                                                {{ user.permissions }},
+                                                                '{{ user.keycard }}' );">Modify</a>
                 </li>
             {% endfor %}
         </ul>
