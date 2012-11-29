@@ -238,7 +238,7 @@ class CategoryListHandler(webapp2.RequestHandler):
                 parent_id = int(self.request.get('parent'))
                 category_parent = Category.get_by_id(parent_id)
                 categories = Category.all().filter("category_parent = ", category_parent)
-             except ValueError:
+            except ValueError:
                 self.error(400)
         self.response.write(as_json(categories))
  
@@ -347,7 +347,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
                 day_start = int(day_start)
                 start_date = datetime.datetime(year_start,month_start,day_start)
                 checkouts = checkouts.filter('checkout_date >= ', start_date)
-             except ValueError:
+            except ValueError:
                 self.error(400)
                 
         year_end = self.request.get('year_end')
@@ -360,7 +360,7 @@ class CheckoutListHandler(webapp2.RequestHandler):
                 day_end = int(day_end)
                 end_date = datetime.datetime(year_end,month_end,day_end)
                 checkouts = checkouts.filter('checkout_date <= ', end_date)
-             except ValueError:
+            except ValueError:
                 self.error(400)
                 
         self.response.write(as_json(checkouts))
@@ -452,7 +452,7 @@ class RequestListHandler(webapp2.RequestHandler):
                 day_start = int(day_start)
                 start_date = datetime.datetime(year_start,month_start,day_start)
                 requests = requests.filter('checkout_date >= ', start_date)
-             except ValueError:
+            except ValueError:
                 self.error(400)
                 
         year_end = self.request.get('year_end')
@@ -465,7 +465,7 @@ class RequestListHandler(webapp2.RequestHandler):
                 day_end = int(day_end)
                 end_date = datetime.datetime(year_end,month_end,day_end)
                 requests = requests.filter('checkout_date <= ', end_date)
-             except ValueError:
+            except ValueError:
                 self.error(400)
         self.response.write(as_json(requests))
     
