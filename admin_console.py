@@ -59,9 +59,15 @@ class MainPage(webapp2.RequestHandler):
     def _template_values(self):
         template_values = dict(base_template_values)
         
+        # List users with USER_STATUS_REQUESTED permissions
         it = dataModels.Person.all().filter('permissions =', security.USER_STATUS_REQUESTED).run()
         pending_requests = list(it)
         template_values['pending_requests'] = pending_requests
+        
+        # List all useres
+        it = dataModels.Person.all()
+        all_users = list(it)
+        template_values['all_users'] = all_users
         
         return template_values
 

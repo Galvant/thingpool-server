@@ -16,6 +16,29 @@
                 $("#pending_requests").submit();
                 return false;
             };
+            
+            function populate_modify_fields(id, user_name, user_email, user_permissions) {
+                console.log(id);
+                document.getElementById('user_name').value = user_name;
+                document.getElementById('user_email').value = user_email;
+                
+                switch(user_permissions) {
+                    case -1: // User is banned
+                        document.getElementById('radio_banned').checked = true;
+                        break;
+                    case 2: // User is a regular user
+                        document.getElementById('radio_user').checked = true;
+                        break;
+                    case 3: // User is actually a kiosk account
+                        document.getElementById('radio_kiosk').checked = true;
+                        break;
+                    case 4: // User is a manager
+                        document.getElementById('radio_manager').checked = true;
+                        break;
+                }
+                
+                return false;
+            };
         </script>
     </head>
     
@@ -45,5 +68,41 @@
         </form>
         
         <h2>Modify User</h2>
+        <ul>
+            <form id="modify_user" action="{{ uri_for('admin_main') }}" method="post">
+                <label for="user_name">Name</label>
+                <input type="text" name="user_name" id="user_name" value="Name" disabled="true"><br>
+                <label for="user_email">Email</label>
+                <input type="text" name="user_email" id="user_email" value="Email" disabled="true"><br>
+                <label for="user_keycard">Keycard</label>
+                <input type="text" name="user_keycard" id="user_keycard"><br><br>
+                
+                User Permissions<br>
+                <input type="radio" name="user_status" id="radio_banned">
+                <label for="radio_banned">Banned</label><br>
+                
+                <input type="radio" name="user_status" id="radio_user">
+                <label for="radio_user">User</label><br>
+                
+                <input type="radio" name="user_status" id="radio_kiosk">
+                <label for="radio_kiosk">Kiosk</label><br>
+                
+                <input type="radio" name="user_status" id="radio_manager">
+                <label for="radio_manager">Manager</label><br><br>
+                
+                <input type="submit" value="Submit">
+                
+            </form>
+            <br>
+            {% for user in all_users %}
+                <li>
+                    {{ user.user_account.nickname() }} &lt;{{ user.user_account.email() }}&gt;
+                    <a href="#" onclick="populate_modify_fields( {{ user.key().id() }},
+                                                                '{{ user.user_account.nickname() }}',
+                                                                '{{ user.user_account.email() }}',
+                                                                {{ user.permissions }} );">Modify</a>
+                </li>
+            {% endfor %}
+        </ul>
     </body>
 </html>
