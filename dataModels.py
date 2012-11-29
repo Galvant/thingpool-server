@@ -78,6 +78,7 @@ class Person(db.Model):
     def __api__(self):
         return {
             'id': self.key().id(),
+            'keycard': self.keycard,
             'nickname': self.user_account.nickname(),
             'g_account': self.user_account.email(),
             'role': s.USER_STATUS_DESCRIPTIONS[self.permissions]
