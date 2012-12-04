@@ -173,7 +173,7 @@ class ItemListHandler(webapp2.RequestHandler):
         # TODO: Find why the following code block causes the dev server to report Syntax Error
         '''else:
             try:
-                category = Category.get_by_id( int(self.request.get("category") )
+                category = Category.get_by_id( int(self.request.get("category") ) )
                 items = Item.all().filter("category = ", category)
             except ValueError:
                 self.error(400)'''
