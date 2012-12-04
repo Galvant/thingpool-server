@@ -1,11 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>
             {{ pool_name }} Admin Console
         </title>
         
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <!-- Bootstrap -->
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap-responsive.css" rel="stylesheet">
+        <style>
+          body {
+            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+          }
+        </style>
         
         <script type="text/javascript">
             function resolve(id, resolution) {
@@ -81,71 +89,140 @@
     
     <body>
     
-        {% if not message is none %}
-            {{ message }}
-            <hr></hr>
-        {% endif %}
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">{{ pool_name }}</a>
+                    <ul class="nav">
+                        <li class="active"><a href="#">Admin Console</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     
-        <h1>{{ pool_name }} Admin Console</h1>
+        <div class="container">        
         
-        <h2>Pending Requests</h2>
-        <form id="pending_requests" action="{{ uri_for('admin_main') }}" method="post">
-            <input type="hidden" name="action" id="action" value="handle_account_request"></input>
-            <input type="hidden" name="user_id" id="user_id" value="None"></input>
-            <input type="hidden" name="request_resolution" id="request_resolution" value="None"></input>
-            <ul>  
-                {% for pending_user in pending_requests %}
-                    <li>
-                        {{ pending_user.user_account.nickname() }} &lt;{{ pending_user.user_account.email() }}&gt;
-                        <a href="#" onclick="resolve({{ pending_user.key().id() }}, 'approve');">Approve</a>
-                        <a href="#" onclick="resolve({{ pending_user.key().id() }}, 'deny');">Deny</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </form>
+            <div class="row">
         
-        <h2>Modify User</h2>
-        <ul>
-            <form id="modify_user" action="{{ uri_for('admin_main') }}" method="post">
-                <input type="hidden" name="modify_permissions" id="modify_permissions" value="None">
-                <input type="hidden" name="modify_id" id="modify_id" value="None">
-                <input type="hidden" name="modify_keycard" id="modify_keycard" value="None">
+                <div class="span3">
+                    
+                    <ul class="nav nav-tabs nav-stacked">
+                        <li><a href="#pending"><i class="icon-chevron-right pull-right"></i>Pending Requests <span class="badge badge-important pull-right">1</span></a></li> <!-- TODO: make this badge accurate and hide it if no pending requests. -->
+                        <li><a href="#modify"><i class="icon-chevron-right pull-right"></i>Modify User</a></li>
+                    </ul>
+                
+                </div>
+        
+                <div class="span9">
+    
+                {% if not message is none %}
+                    <div class="alert alert-info">
+                         <button type="button" class="close" data-dismiss="alert">×</button>
+                        {{ message }}
+                    </div>
+                {% endif %}
             
-                <label for="user_name">Name</label>
-                <input type="text" name="user_name" id="user_name" value="Name" disabled="true"><br>
-                <label for="user_email">Email</label>
-                <input type="text" name="user_email" id="user_email" value="Email" disabled="true"><br>
-                <label for="user_keycard">Keycard</label>
-                <input type="text" name="user_keycard" id="user_keycard"><br><br>
-                
-                User Permissions<br>
-                <input type="radio" name="user_status" id="radio_banned">
-                <label for="radio_banned">Banned</label><br>
-                
-                <input type="radio" name="user_status" id="radio_user">
-                <label for="radio_user">User</label><br>
-                
-                <input type="radio" name="user_status" id="radio_kiosk">
-                <label for="radio_kiosk">Kiosk</label><br>
-                
-                <input type="radio" name="user_status" id="radio_manager">
-                <label for="radio_manager">Manager</label><br><br>
-                
-                <a href="#" onclick="submit_modify_user( );">Submit</a>
-                
-                
-            </form>
-            <br>
-            {% for user in all_users %}
-                <li>
-                    {{ user.user_account.nickname() }} &lt;{{ user.user_account.email() }}&gt;
-                    <a href="#" onclick="populate_modify_fields( {{ user.key().id() }},
-                                                                '{{ user.user_account.nickname() }}',
-                                                                '{{ user.user_account.email() }}',
-                                                                {{ user.permissions }},
-                                                                '{{ user.keycard }}' );">Modify</a>
-                </li>
-            {% endfor %}
-        </ul>
+                    <h2 id="pending">Pending Requests</h2>
+                    <form id="pending_requests" action="{{ uri_for('admin_main') }}" method="post">
+                        <input type="hidden" name="action" id="action" value="handle_account_request"></input>
+                        <input type="hidden" name="user_id" id="user_id" value="None"></input>
+                        <input type="hidden" name="request_resolution" id="request_resolution" value="None"></input>
+                        <ul class="unstyled">  
+                            {% for pending_user in pending_requests %}
+                                <li>
+                                    <div class="row">
+                                        <div class="span4">{{ pending_user.user_account.nickname() }} &lt;{{ pending_user.user_account.email() }}&gt;</div>
+                                        <div class="span2"><button class="btn btn-success" onclick="resolve({{ pending_user.key().id() }}, 'approve');">
+                                            <i class="icon-ok"></i>
+                                            Approve
+                                        </button></div>
+                                        <div class="span2"><button class="btn btn-danger" onclick="resolve({{ pending_user.key().id() }}, 'deny');">
+                                            <i class="icon-remove"></i>
+                                            Deny
+                                        </button></div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </form>
+                    
+                    <h2>Modify User</h2>
+                    
+                    <form class="form-search">
+                        <div class="input-append">
+                            <input type="text" class="input-medium search-query" placeholder="Search for users...">
+                            <button type="submit" class="btn"><i class="icon-search"></i></button>
+                        </div>
+                    </form>
+                    
+                    <!-- TODO: replace with the above searchbox. -->
+                    <ul class="unstyled">
+                        {% for user in all_users %}
+                            <li>
+                                {{ user.user_account.nickname() }} &lt;{{ user.user_account.email() }}&gt;
+                                <a href="#" onclick="populate_modify_fields( {{ user.key().id() }},
+                                                                            '{{ user.user_account.nickname() }}',
+                                                                            '{{ user.user_account.email() }}',
+                                                                            {{ user.permissions }},
+                                                                            '{{ user.keycard }}' );">Modify</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="well">
+                        <form id="modify_user" action="{{ uri_for('admin_main') }}" method="post">
+                            <input type="hidden" name="modify_permissions" id="modify_permissions" value="None">
+                            <input type="hidden" name="modify_id" id="modify_id" value="None">
+                            <input type="hidden" name="modify_keycard" id="modify_keycard" value="None">
+                        
+                            <div class="row">
+                            
+                                <!-- TODO: something is wrong with the spans here. -->
+                                <div class="span1"><label for="user_name">Name</label></div>
+                                <div class="span3"><input type="text" name="user_name" id="user_name" value="Name" disabled="true"></div>
+                                <div class="span1"><label for="user_email">Email</label></div>
+                                <div class="span3"><input type="text" name="user_email" id="user_email" value="Email" disabled="true"></div>
+                                <div class="span1"><label for="user_keycard">Keycard</label></div>
+                                <div class="span2"><input type="text" name="user_keycard" id="user_keycard"></div>
+                                
+                            </div>
+                            
+                            <div class="btn-group" data-toggle="buttons-radio">
+                                <!-- TODO: this button group currently doesn't do anything. Needs hooked up via JS. -->
+                                <button type="button" class="btn">Banned</button>
+                                <button type="button" class="btn">User</button>
+                                <button type="button" class="btn">Kiosk</button>
+                                <button type="button" class="btn">Manager</button>
+                            </div>
+                            
+                            <br>
+                            
+                                User Permissions<br>
+                                <input type="radio" name="user_status" id="radio_banned">
+                                <label for="radio_banned">Banned</label><br>
+                                
+                                <input type="radio" name="user_status" id="radio_user">
+                                <label for="radio_user">User</label><br>
+                                
+                                <input type="radio" name="user_status" id="radio_kiosk">
+                                <label for="radio_kiosk">Kiosk</label><br>
+                                
+                                <input type="radio" name="user_status" id="radio_manager">
+                                <label for="radio_manager">Manager</label><br><br>
+                            
+                            <button type="submit" class="btn btn-primary btn-large" onclick="submit_modify_user( );">Submit</button>
+                            
+                            
+                        </form>
+                    </div>
+                 
+                </div>
+        
+            </div>
+        
+        </div>
+        
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <script src="js/bootstrap.min.js"></script>
     </body>
 </html>
