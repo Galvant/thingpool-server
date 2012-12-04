@@ -101,5 +101,5 @@ class MainPage(webapp2.RequestHandler):
             })
             
 
-        template = jinja_environment.get_template('templates/mobile/index.html')
+        template = jinja_environment.get_template('templates/main/index.html')
         self.response.out.write(template.render(template_values))

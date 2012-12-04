@@ -37,7 +37,7 @@ import os
 ## THINGPOOL MODULES ##
 import api
 import config
-import mobile_site
+import main_site
 import admin_console
 
 ## CORE SERVER #################################################################
@@ -45,8 +45,8 @@ import admin_console
 routes = [
     # Mobile site routes
     webapp2.Route('/',
-        handler=mobile_site.MainPage,
-        name='mobile_main'),
+        handler=main_site.MainPage,
+        name='main'),
     
     # Admin console
     webapp2.Route('/admin',
