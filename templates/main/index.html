@@ -1,121 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>
-        </title>
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
-        <style>
-            /* App custom styles */
+    
+        <meta charset="utf-8">
+        <title>{{ pool_name }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <!-- Bootstrap -->
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+          body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+          }
+          .sidebar-nav {
+            padding: 9px 0;
+          }
         </style>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
-        </script>
-        <script type="text/javascript"> /* Note that order matters here for loading the JS */
-			$(document).bind("mobileinit", function(){
-			    $.mobile.page.prototype.options.addBackBtn= true;
-			});
-		</script>
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.1.1/jquery.mobile-1.1.1.min.js">
-        </script>
+    
     </head>
+    
     <body>
     
-        <!-- Home -->
-        <div data-role="page" id="page1">
-            <div data-theme="a" data-role="header">
-                <h3>
-                    ThingPool
-                </h3>
-                <a data-role="button" data-transition="fade" data-theme="b" href="{{ loginout_url }}" class="ui-btn-right">
-                    <!-- TODO: put the logout button everywhere? Maybe? -->
-                    {{ login_button }}
-                </a>
-            </div>
-            <div data-role="content" style="padding: 15px">
-                <h2>
-                    {{ pool_name }}
-                </h2>
-                
-                {% if show_requested %}
-                <div class="ui-body ui-body-e">
-                    <p>
-                        A request for a {{ pool_name }} account has been placed.
-                        Once your request has been approved, you will be able
-                        to use {{ pool_name }}.
-                    </p>
-                </div>
-                {% endif %}
-                
-                {% if login_failed %}
-                <div class="ui-body ui-body-e">
-                    <p>{{ login_failure_reason }}</p>
-                </div>
-                {% endif %}
-                
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-                    <li data-role="list-divider" role="heading">
-                        Things
-                    </li>
-                    <li data-theme="c">
-                        <a href="#search" data-transition="slide">
-                            <!-- TODO: this link should transition to a login page if the config option is set in config.py. -->
-                            Find a Thing
-                        </a>
-                    </li>
-                    {% if login_button != 'Login' %}
-		                <li data-theme="c">
-		                    <a href="#page1" data-transition="slide">
-		                        Checked-Out Things
-		                        <span class="ui-li-count">{{ checked_out_things }}</span>
-		                    </a>
-		                </li>
-		            {% endif %}
-                    <li data-role="list-divider" role="heading">
-                        Account
-                    </li>
-                    <li data-theme="c">
-                        <a href="#page1" data-transition="slide">
-                            Profile
-                        </a>
-                    </li>
+        <!-- NAVBAR -->
+        <!-- TODO: refactor navbar into its own template so it can be shared across pages. -->
+        <div class="navbar navbar navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container-fluid">
+              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </a>
+              <a href="#"><i class="icon-chevron-left pull-left"></i></a> <!-- TODO: fix alignment -->
+              <a class="brand" href="#">{{ pool_name }}</a>
+              <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                  <a href="{{ loginout_url }}" class="navbar-link">{{ login_button }}</a>
+                </p>
+                <ul class="nav">
+                  <li class="active"><a href="#"><i class="icon-home"></i> Home</a></li>
+                  <li><a href="#about"><i class="icon-wrench"></i> Settings</a></li>
+                  <li><a href="/admin">Admin</a></li> <!-- TODO: check permissions before showing this. -->
                 </ul>
+              </div><!--/.nav-collapse -->
             </div>
-            <div data-theme="a" data-role="footer" data-position="fixed">
-                <h3>
-                    {{ username }}
-                </h3>
+          </div>
+        </div>
+    
+        <!-- Main Fluid Container -->
+        <div class="container-fluid">
+            <div class="row-fluid">
+            
+                <!-- Sidebar -->
+                <!-- TODO: consider hiding on desktop? -->
+                <div class="span3">
+                
+                    <div class="well sidebar-nav">
+                        <ul class="nav nav-list">
+                            <li class="nav-header">Things</li>
+                            <!-- TODO: this link should transition to a login page if the config option is set in config.py. -->
+                            <li class="active"><a href="#search">Find a Thing</a></li> 
+                            {% if login_button != 'Login' %}
+                                <li><a href="#">Checked-Out Things<span class="badge pull-right">12</span></a></li>
+                                <li><a href="/add_thing">Add a New Thing</a></li>
+                            {% endif %}
+                            <li class="nav-header">{{ username }}</li>
+                            <li><a href="#">Profile</a></li>
+                        </ul>
+                    </div>
+                
+                </div> <!-- /Sidebar -->
+                
+                <!-- Find a Thing -->
+                <div class="span3" id="search">
+                
+                    <h2>Find a Thing</h2>
+                    
+                    <ul class="nav nav-tabs nav-stacked">
+                        <!-- FIXME: how in the hell does one put a search bar inside a nav-stacked? -->
+                        <li class="nav-header">All Things</li>
+                        <li>
+                            <form class="form-search pull-left">
+                                <div class="input-append">
+                                    <input type="text" class="input-medium search-query" placeholder="Search by description..."></input>                            
+                                    <button type="submit" class="btn"><i class="icon-search"></i></button>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="nav-header">Things By Category</li>
+                        <li><a href="#">Electronics</a></li>
+                        <li><a href="#">Books</a></li>
+                    </ul>
+                
+                </div> <!-- /Find a Thing -->
+                
+                <div class="span3" id="checked_out_things">
+                
+                    <h2>Checked-Out Things</h2>
+                    <p>
+                        <!-- TODO: make this conditional. -->
+                        You have nothing checked out. Good for you!
+                    </p>
+                
+                </div>
+            
             </div>
         </div>
-        <!-- / Home -->
-        
-        <!-- Things -->
-        
-        <div data-role="page" id="search">
-            <div data-theme="a" data-role="header">
-                <h3>
-                    Find a Thing
-                </h3>
-            </div>
-            
-            
-	        <div data-role="content">
-		        <div class="content-primary">	
-			        <ul data-role="listview">
-			        <!-- TODO: Connect to something that hits against the server's autocomplete API and searches Things. This looks promising: http://stackoverflow.com/a/7936266 -->
-		                <li><input type="search" name="search" id="search-things" value="" placeholder="Search Things..." /></li>
-        				<li data-role="list-divider">Categories</li>
-    				    <!-- TODO: Repopulate the list when a category is clicked. -->
-				        <li><a href="index.html">Books</a></li>
-				        <li><a href="index.html">Electronics</a></li>
-			        </ul>
-			    </div><!--/content-primary -->	
-		    </div>
+    
+        <!-- TODO: convert MESSAGES -->
+        {% if show_requested %}
+        <div class="ui-body ui-body-e">
+            <p>
+                A request for a {{ pool_name }} account has been placed.
+                Once your request has been approved, you will be able
+                to use {{ pool_name }}.
+            </p>
         </div>
-        <!-- / Things -->
+        {% endif %}
         
-        <script>
-            //App custom javascript
-        </script>
+        {% if login_failed %}
+        <div class="ui-body ui-body-e">
+            <p>{{ login_failure_reason }}</p>
+        </div>
+        {% endif %}
+    
+        
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <script src="js/bootstrap.min.js"></script>
     </body>
 </html>
