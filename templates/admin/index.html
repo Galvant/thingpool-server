@@ -8,7 +8,6 @@
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="css/bootstrap-responsive.css" rel="stylesheet">
         <style>
           body {
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -27,6 +26,15 @@
             
             function populate_modify_fields(id, user_name, user_email, user_permissions, user_keycard) {
                 console.log(id);
+                
+                // Ensure that the well containing the modify user form is visible.
+                $('#modify_user_well').toggle(true);
+                
+                // Populate the legend.
+                $('#modify_username').text(user_name);
+                $('#modify_email').text(user_email);
+                
+                // Populate each form field.
                 document.getElementById('user_name').value = user_name;
                 document.getElementById('user_email').value = user_email;
                 document.getElementById('modify_id').value = id;
@@ -34,19 +42,19 @@
                 
                 switch(user_permissions) {
                     case -1: // User is banned
-                        document.getElementById('radio_banned').checked = true;
+                        $('#btn_perm_banned').button('toggle');
                         document.getElementById('modify_permissions').value = -1;
                         break;
                     case 2: // User is a regular user
-                        document.getElementById('radio_user').checked = true;
+                        $('#btn_perm_user').button('toggle');
                         document.getElementById('modify_permissions').value = 2;
                         break;
                     case 3: // User is actually a kiosk account
-                        document.getElementById('radio_kiosk').checked = true;
+                        $('#btn_perm_kiosk').button('toggle');
                         document.getElementById('modify_permissions').value = 3;
                         break;
                     case 4: // User is a manager
-                        document.getElementById('radio_manager').checked = true;
+                        $('#btn_perm_manager').button('toggle');
                         document.getElementById('modify_permissions').value = 4;
                         break;
                 }
@@ -110,8 +118,9 @@
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="#">{{ pool_namse }}</a>
+                    <a class="brand" href="#">{{ pool_name }}</a>
                     <ul class="nav">
+                        <li><a href="/">Home</a></li>
                         <li class="active"><a href="#">Admin Console</a></li>
                     </ul>
                 </div>
@@ -178,6 +187,7 @@
                         {% for user in all_users %}
                             <li>
                                 {{ user.user_account.nickname() }} &lt;{{ user.user_account.email() }}&gt;
+                                <!-- TODO: replace populate_modify_fields call with an API call. -->
                                 <a href="#" onclick="populate_modify_fields( {{ user.key().id() }},
                                                                             '{{ user.user_account.nickname() }}',
                                                                             '{{ user.user_account.email() }}',
@@ -187,49 +197,49 @@
                         {% endfor %}
                     </ul>
                     
-                    <div class="well">
+                    <div class="well" id="modify_user_well" style="display: none">
                         <form id="modify_user" action="#">
                             <input type="hidden" name="modify_permissions" id="modify_permissions" value="None">
                             <input type="hidden" name="modify_id" id="modify_id" value="None">
                             <input type="hidden" name="modify_keycard" id="modify_keycard" value="None">
                         
-                            <div class="row">
-                            
-                                <!-- TODO: something is wrong with the spans here. -->
-                                <div class="span1"><label for="user_name">Name</label></div>
-                                <div class="span3"><input type="text" name="user_name" id="user_name" value="Name" disabled="true"></div>
-                                <div class="span1"><label for="user_email">Email</label></div>
-                                <div class="span3"><input type="text" name="user_email" id="user_email" value="Email" disabled="true"></div>
-                                <div class="span1"><label for="user_keycard">Keycard</label></div>
-                                <div class="span2"><input type="text" name="user_keycard" id="user_keycard"></div>
+                            <fieldset>
+                                <!-- TODO: make these editable in-place. -->
+                                <!-- TODO: fix alignment of edit buttons. -->
+                                <legend><span id="modify_username"></span><a href="#"><i class="icon-edit"></i></a>&nbsp;<small id="modify_email"></small><a href="#"><i class="icon-edit"></i></a></legend>
+                        
+                                <div class="row">
                                 
-                            </div>
-                            
-                            <div class="btn-group" data-toggle="buttons-radio">
-                                <!-- TODO: Visually have corresponding button pressed when user info is loaded -->
-                                <button type="button" class="btn" onclick="modify_permission_banned();">Banned</button>
-                                <button type="button" class="btn" onclick="modify_permission_user();">User</button>
-                                <button type="button" class="btn" onclick="modify_permission_kiosk();">Kiosk</button>
-                                <button type="button" class="btn" onclick="modify_permission_manager();">Manager</button>
-                            </div>
-                            
-                            <br>
-                            
-                                User Permissions<br>
-                                <input type="radio" name="user_status" id="radio_banned">
-                                <label for="radio_banned">Banned</label><br>
+                                    <!-- TODO: something is wrong with the spans here. -->
+                                    <div class="span1"><label for="user_name">Name</label></div>
+                                    <div class="span3"><input type="text" name="user_name" id="user_name" value="Name" disabled="true"></div>
+                                    <div class="span1"><label for="user_email">Email</label></div>
+                                    <div class="span3"><input type="text" name="user_email" id="user_email" value="Email" disabled="true"></div>
+                                    <div class="span1"><label for="user_keycard">Keycard</label></div>
+                                    <div class="span2"><input type="text" name="user_keycard" id="user_keycard"></div>
+                                    
+                                </div>
                                 
-                                <input type="radio" name="user_status" id="radio_user">
-                                <label for="radio_user">User</label><br>
+                                <div class="row">
                                 
-                                <input type="radio" name="user_status" id="radio_kiosk">
-                                <label for="radio_kiosk">Kiosk</label><br>
+                                    <div class="span2">
+                                        User permissions:
+                                    </div>
+                                    
+                                    <div class="span6">
+                                        <div class="btn-group" data-toggle="buttons-radio">
+                                            <!-- TODO: Visually have corresponding button pressed when user info is loaded -->
+                                            <!-- TODO: populate the list of roles from the server. -->
+                                            <button id="btn_perm_banned"  type="button" class="btn" onclick="modify_permission_banned();">Banned</button>
+                                            <button id="btn_perm_user"    type="button" class="btn" onclick="modify_permission_user();">User</button>
+                                            <button id="btn_perm_kiosk"   type="button" class="btn" onclick="modify_permission_kiosk();">Kiosk</button>
+                                            <button id="btn_perm_manager" type="button" class="btn" onclick="modify_permission_manager();">Manager</button>
+                                        </div>
+                                    </div>
                                 
-                                <input type="radio" name="user_status" id="radio_manager">
-                                <label for="radio_manager">Manager</label><br><br>
+                                </div>
                             
-                            <button type="submit" class="btn btn-primary btn-large" onclick="submit_modify_user( );">Submit</button>
-                            
+                            </fieldset>
                             
                         </form>
                     </div>
