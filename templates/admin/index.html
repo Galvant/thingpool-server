@@ -59,7 +59,7 @@
                 var user_id = document.getElementById('modify_id').value;
                 var user_permissions = 2;
                 var user_keycard = document.getElementById('modify_keycard').value;
-                
+                /*
                 if (document.getElementById('radio_banned').checked == true) {
                     user_permissions = -1;
                 }
@@ -71,7 +71,9 @@
                 }
                 else if (document.getElementById('radio_manager').checked == true) {
                     user_permissions = 4;
-                }
+                }*/
+                
+                user_permissions = document.getElementById('modify_permissions').value;
                 
                 console.log(user_id);
                 console.log(user_permissions);
@@ -84,6 +86,22 @@
                     
                 )
             };
+            
+            function modify_permission_banned() {
+                document.getElementById('modify_permissions').value = -1;
+            };
+            
+            function modify_permission_user() {
+                document.getElementById('modify_permissions').value = 2;
+            };
+            
+            function modify_permission_kiosk() {
+                document.getElementById('modify_permissions').value = 3;
+            };
+            
+            function modify_permission_manager() {
+                document.getElementById('modify_permissions').value = 4;
+            };
         </script>
     </head>
     
@@ -92,7 +110,7 @@
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="#">{{ pool_name }}</a>
+                    <a class="brand" href="#">{{ pool_namse }}</a>
                     <ul class="nav">
                         <li class="active"><a href="#">Admin Console</a></li>
                     </ul>
@@ -170,7 +188,7 @@
                     </ul>
                     
                     <div class="well">
-                        <form id="modify_user" action="{{ uri_for('admin_main') }}" method="post">
+                        <form id="modify_user" action="#">
                             <input type="hidden" name="modify_permissions" id="modify_permissions" value="None">
                             <input type="hidden" name="modify_id" id="modify_id" value="None">
                             <input type="hidden" name="modify_keycard" id="modify_keycard" value="None">
@@ -188,11 +206,11 @@
                             </div>
                             
                             <div class="btn-group" data-toggle="buttons-radio">
-                                <!-- TODO: this button group currently doesn't do anything. Needs hooked up via JS. -->
-                                <button type="button" class="btn">Banned</button>
-                                <button type="button" class="btn">User</button>
-                                <button type="button" class="btn">Kiosk</button>
-                                <button type="button" class="btn">Manager</button>
+                                <!-- TODO: Visually have corresponding button pressed when user info is loaded -->
+                                <button type="button" class="btn" onclick="modify_permission_banned();">Banned</button>
+                                <button type="button" class="btn" onclick="modify_permission_user();">User</button>
+                                <button type="button" class="btn" onclick="modify_permission_kiosk();">Kiosk</button>
+                                <button type="button" class="btn" onclick="modify_permission_manager();">Manager</button>
                             </div>
                             
                             <br>
