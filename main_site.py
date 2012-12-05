@@ -95,7 +95,7 @@ class MainPage(webapp2.RequestHandler):
         else:
             template_values.update({
                 'login_button': 'Login',
-                'loginout_url': users.create_login_url(self.url_for('mobile_main')),
+                'loginout_url': users.create_login_url(self.url_for('main')),
                 'checked_out_things': 0,
                 'username' : 'Not logged in'
             })
