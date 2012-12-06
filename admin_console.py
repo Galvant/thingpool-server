@@ -63,6 +63,7 @@ class MainPage(webapp2.RequestHandler):
         it = dataModels.Person.all().filter('permissions =', security.USER_STATUS_REQUESTED).run()
         pending_requests = list(it)
         template_values['pending_requests'] = pending_requests
+        template_values['num_pending_requests'] = len(pending_requests)
         
         # List all useres
         it = dataModels.Person.all()

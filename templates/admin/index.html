@@ -134,7 +134,7 @@
                 <div class="span3">
                     
                     <ul class="nav nav-tabs nav-stacked">
-                        <li><a href="#pending"><i class="icon-chevron-right pull-right"></i>Pending Requests <span class="badge badge-important pull-right">1</span></a></li> <!-- TODO: make this badge accurate and hide it if no pending requests. -->
+                        <li><a href="#pending"><i class="icon-chevron-right pull-right"></i>Pending Requests {%if num_pending_requests>0%}<span class="badge badge-important pull-right">{{num_pending_requests}}</span>{%endif%}</a></li>
                         <li><a href="#modify"><i class="icon-chevron-right pull-right"></i>Modify User</a></li>
                     </ul>
                 
