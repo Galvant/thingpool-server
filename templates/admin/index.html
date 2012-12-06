@@ -97,21 +97,10 @@
                 window.location.reload(true);
             };
             
-            function modify_permission_banned() {
-                document.getElementById('modify_permissions').value = -1;
+            function modify_permission(new_perm) {
+                document.getElementById('modify_permissions').value = new_perm;
             };
             
-            function modify_permission_user() {
-                document.getElementById('modify_permissions').value = 2;
-            };
-            
-            function modify_permission_kiosk() {
-                document.getElementById('modify_permissions').value = 3;
-            };
-            
-            function modify_permission_manager() {
-                document.getElementById('modify_permissions').value = 4;
-            };
         </script>
     </head>
     
@@ -232,10 +221,10 @@
                                         <div class="btn-group" data-toggle="buttons-radio">
                                             <!-- TODO: Visually have corresponding button pressed when user info is loaded -->
                                             <!-- TODO: populate the list of roles from the server. -->
-                                            <button id="btn_perm_banned"  type="button" class="btn" onclick="modify_permission_banned();">Banned</button>
-                                            <button id="btn_perm_user"    type="button" class="btn" onclick="modify_permission_user();">User</button>
-                                            <button id="btn_perm_kiosk"   type="button" class="btn" onclick="modify_permission_kiosk();">Kiosk</button>
-                                            <button id="btn_perm_manager" type="button" class="btn" onclick="modify_permission_manager();">Manager</button>
+                                            <button id="btn_perm_banned"  type="button" class="btn" onclick="modify_permission(-1);">Banned</button>
+                                            <button id="btn_perm_user"    type="button" class="btn" onclick="modify_permission(2);">User</button>
+                                            <button id="btn_perm_kiosk"   type="button" class="btn" onclick="modify_permission(3);">Kiosk</button>
+                                            <button id="btn_perm_manager" type="button" class="btn" onclick="modify_permission(4);">Manager</button>
                                         </div>
                                     </div>
                                     
